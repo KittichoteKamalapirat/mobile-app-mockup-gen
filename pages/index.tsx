@@ -1,20 +1,24 @@
 import type { NextPage } from "next";
+import { firestoreConnect } from "react-redux-firebase";
 
-import { useSelector } from "react-redux";
+import "firebase/compat/firestore";
+import { connect, useSelector } from "react-redux";
+import { useFirestoreConnect } from "react-redux-firebase";
+import { compose } from "redux";
 import CreatePost from "../src/components/CreatePost";
 import Layout from "../src/components/layouts/Layout";
-import Navbar from "../src/components/Navbar";
 import { Post } from "../src/redux/slices/postsReducer";
 
 const Home: NextPage = () => {
-  const posts = useSelector((state) => state.posts);
+  // const posts = useSelector((state) => state.posts);
+  useFirestoreConnect(["posts"]); // sync posts collection from Firestore into redux
+  const posts = useSelector((state) => state.firestore.data.posts);
 
   return (
     <Layout>
-      <Navbar />
       <main className="flex-col items-center justify-center ">
         <div>
-          {posts.map((post: Post) => (
+          {posts?.map((post: Post) => (
             <div key={post.id}>
               <h2 className="text-xl text-primary">{post.title}</h2>
               <p>{post.body}</p>
@@ -28,4 +32,12 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+// export default firestoreConnect([{ collection: "posts" }])(Home);
+export default compose(
+  firestoreConnect(() => ["posts"]), // or { collection: 'todos' }
+  connect((state, props) => {
+    return {
+      posts: state.firestore.ordered.posts,
+    };
+  })
+)(Home);

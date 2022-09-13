@@ -5,18 +5,7 @@ export interface Post {
   body: string;
 }
 
-const initialState: Post[] = [
-  {
-    id: "1111111",
-    title: "post 1",
-    body: "this is body of post 1",
-  },
-  {
-    id: "2222222",
-    title: "post 2",
-    body: "this is body of post 2",
-  },
-];
+const initialState: Post[] = [];
 
 // slice basically has state, actions, and reducers
 export const postsSlice = createSlice({
@@ -24,6 +13,7 @@ export const postsSlice = createSlice({
   initialState,
   reducers: {
     createPost(state, action) {
+      console.log("create post action");
       state.push({
         id: action.payload.id,
         title: action.payload.title,
@@ -31,8 +21,8 @@ export const postsSlice = createSlice({
       });
     },
     deletePost(state, action) {
-      const todos = state.filter((post) => post.id !== action.payload);
-      return todos;
+      const posts = state.filter((post) => post.id !== action.payload);
+      return posts;
     },
   },
 });
