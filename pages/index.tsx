@@ -1,13 +1,14 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import { useSelector } from "react-redux";
+import CreatePost from "../src/components/CreatePost";
+import { Post } from "../src/redux/slices/postsReducer";
 import styles from "../styles/Home.module.css";
-import { useSelector, useDispatch } from "react-redux";
-import { createPost, Post } from "../src/redux/slices/postsReducer";
 
 const Home: NextPage = () => {
   const posts = useSelector((state) => state.posts);
-  const dispatch = useDispatch();
+
   return (
     <div className={styles.container}>
       <Head>
@@ -16,10 +17,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+      <main className="flex-col items-center justify-center ">
         <div>
           {posts.map((post: Post) => (
             <div key={post.id}>
@@ -29,37 +27,7 @@ const Home: NextPage = () => {
           ))}
         </div>
 
-        <form id="main-login">
-          <h2>Admin UI Login</h2>
-          <label>
-            <span>title:</span>
-            <input type="email" name="email" />
-            <br />
-          </label>
-          <br />
-          <label>
-            <span>password:</span>
-            <input type="password" name="password" />
-            <br />
-          </label>
-          <br />
-          <div>
-            <button
-              onClick={() =>
-                dispatch(
-                  createPost({
-                    id: "new id",
-                    title: "new title",
-                    body: "new body",
-                  })
-                )
-              }
-            >
-              {" "}
-              create post{" "}
-            </button>
-          </div>
-        </form>
+        <CreatePost />
       </main>
 
       <footer className={styles.footer}>
