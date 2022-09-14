@@ -7,6 +7,22 @@ import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Layout from "../src/components/layouts/Layout";
 import Navbar from "../src/components/Navbar";
+import im from "imagemagick";
+
+// original: https://stackoverflow.com/a/19593950
+function roundedImage(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
 
 const Home: NextPage = () => {
   const posts = useSelector((state) => state.posts);
@@ -14,73 +30,94 @@ const Home: NextPage = () => {
 
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
+  const width = 10;
+  const height = 19;
+  const dest = 10;
   const handleDownload = () => {
     console.log("handle download");
 
     // create image
-    const canva = document.querySelector("#canva");
-    const ctx = canva?.getContext("2d");
+    // const canva = document.querySelector("#canva");
+    // const ctx = canva?.getContext("2d");
 
     const phoneImg = document.querySelector("#phone");
-
     const phoneRenW = phoneImg.width;
     const phoneRenH = phoneImg.height;
-
     const phoneIntrinsicW = phoneImg.naturalWidth;
     const phoneIntrinsiH = phoneImg.naturalHeight;
 
-    console.log("phone width", phoneRenW);
-    console.log("phone height", phoneRenH);
-
-    canva.width = phoneRenW;
-    canva.height = phoneRenH;
-
-    const ssDiv = document.createElement("div");
     const ssImg = document.querySelector("#ss");
-    ssDiv.appendChild(ssImg as Node);
-    ssDiv.style.borderRadius = "20px";
-
     const ssIntrinsicW = ssImg.naturalWidth;
     const ssIntrinsiH = ssImg.naturalHeight;
-
     const ssRenW = ssImg.width;
     const ssRenH = ssImg.height;
 
     const phoneThicknessW = 10;
     const phoneThicknessH = 10;
 
-    console.log("phone image", phoneImg);
-    ctx.drawImage(
-      phoneImg,
-      0,
-      0, // top left corner of the grab
-      phoneIntrinsicW,
-      phoneIntrinsiH, // bottom right corner of the grab
-      0,
-      0, // where to place the crop
-      phoneRenW,
-      phoneRenH // size of the output, could be stretch
+    im.convert(
+      [
+        ssImg,
+        "-size",
+        width + "x" + height,
+        "xc:none",
+        "-fill",
+        dest,
+        "-draw",
+        "circle " + width / 2 + "," + width / 2 + " " + width / 2 + ",1",
+        dest,
+      ],
+      function (err, stdout) {
+        if (err) console.log("errorrrrrrrrrr");
+        console.log("stdout:", stdout);
+      }
     );
 
-    ctx.drawImage(
-      ssImg,
-      0,
-      0, //top left
-      ssIntrinsicW,
-      ssIntrinsiH, // bottom right
-      phoneThicknessW,
-      phoneThicknessH,
-      ssRenW,
-      ssRenH
-    );
+    // 1. round ss image
+    let canva = document.getElementById("round-corner");
+    let ctx = canva.getContext("2d");
 
-    const img = canva.toDataURL("image/png");
-    // document.write('<img src="' + img + '"/>');
-    console.log("img", img);
+    const roundedImg = new Image();
+
+    roundedImg.onload = function () {
+      // draw image with round corner
+      // ctx.save();
+      roundedImage(ctx, 0, 0, phoneRenW, phoneRenH, 20);
+      ctx.strokeStyle = "#2465D3";
+      ctx.stroke();
+      ctx.clip();
+      ctx.drawImage(
+        roundedImg,
+        0,
+        0,
+        ssIntrinsicW,
+        ssIntrinsiH,
+        phoneThicknessW,
+        phoneThicknessW,
+        ssRenW,
+        ssRenH
+      );
+
+      ctx.drawImage(
+        phoneImg,
+        0,
+        0, // top left corner of the grab
+        phoneIntrinsicW,
+        phoneIntrinsiH, // bottom right corner of the grab
+        0,
+        0, // where to place the crop
+        phoneRenW,
+        phoneRenH // size of the output, could be stretch
+      );
+
+      ctx.restore();
+    };
+
+    roundedImg.src = upload.presignedUrl;
 
     const link = document.createElement("a");
     link.download = "filename.png";
-    link.href = img;
+    // link.href = img;
     // link.click();
   };
 
@@ -143,7 +180,11 @@ const Home: NextPage = () => {
                       Drop an image here
                     </DropzoneField>
                   </div>
-                ) : null}
+                ) : (
+                  <p className="text-grey-900 w-60 h-80 mt-40">
+                    there is presigned url
+                  </p>
+                )}
               </div>
             </div>
 
@@ -154,7 +195,9 @@ const Home: NextPage = () => {
                   extraClass="my-10 "
                   onClick={handleDownload}
                 />
-              ) : null}
+              ) : (
+                <p className="text-grey-900">No presigned url</p>
+              )}
             </div>
           </div>
 
@@ -170,11 +213,18 @@ const Home: NextPage = () => {
         </div>
 
         <div>
-          <canvas
+          {/* <canvas
             id="canva"
             className="bg-blue"
             width={1000}
             height={1000}
+          ></canvas> */}
+
+          <canvas
+            id="round-corner"
+            className="canvas "
+            width="300"
+            height="300"
           ></canvas>
         </div>
 
