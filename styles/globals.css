@@ -28,3 +28,7 @@ a {
     background: black;
   }
 }
+
+.perspective {
+  perspective: 9000px;
+}
