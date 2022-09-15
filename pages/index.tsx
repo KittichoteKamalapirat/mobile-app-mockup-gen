@@ -7,22 +7,6 @@ import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Layout from "../src/components/layouts/Layout";
 import Navbar from "../src/components/Navbar";
-import im from "imagemagick";
-
-// original: https://stackoverflow.com/a/19593950
-function roundedImage(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-}
 
 const Home: NextPage = () => {
   const posts = useSelector((state) => state.posts);
@@ -55,70 +39,39 @@ const Home: NextPage = () => {
     const phoneThicknessW = 10;
     const phoneThicknessH = 10;
 
-    im.convert(
-      [
-        ssImg,
-        "-size",
-        width + "x" + height,
-        "xc:none",
-        "-fill",
-        dest,
-        "-draw",
-        "circle " + width / 2 + "," + width / 2 + " " + width / 2 + ",1",
-        dest,
-      ],
-      function (err, stdout) {
-        if (err) console.log("errorrrrrrrrrr");
-        console.log("stdout:", stdout);
-      }
+    // 1. round ss image
+    let canvas = document.getElementById("round-corner");
+    let ctx = canvas.getContext("2d");
+
+    ctx.drawImage(
+      ssImg,
+      0,
+      0,
+      ssIntrinsicW,
+      ssIntrinsiH,
+      phoneThicknessW,
+      phoneThicknessW,
+      ssRenW,
+      ssRenH
     );
 
-    // 1. round ss image
-    let canva = document.getElementById("round-corner");
-    let ctx = canva.getContext("2d");
+    ctx.drawImage(
+      phoneImg,
+      0,
+      0, // top left corner of the grab
+      phoneIntrinsicW,
+      phoneIntrinsiH, // bottom right corner of the grab
+      0,
+      0, // where to place the crop
+      phoneRenW,
+      phoneRenH // size of the output, could be stretch
+    );
 
-    const roundedImg = new Image();
-
-    roundedImg.onload = function () {
-      // draw image with round corner
-      // ctx.save();
-      roundedImage(ctx, 0, 0, phoneRenW, phoneRenH, 20);
-      ctx.strokeStyle = "#2465D3";
-      ctx.stroke();
-      ctx.clip();
-      ctx.drawImage(
-        roundedImg,
-        0,
-        0,
-        ssIntrinsicW,
-        ssIntrinsiH,
-        phoneThicknessW,
-        phoneThicknessW,
-        ssRenW,
-        ssRenH
-      );
-
-      ctx.drawImage(
-        phoneImg,
-        0,
-        0, // top left corner of the grab
-        phoneIntrinsicW,
-        phoneIntrinsiH, // bottom right corner of the grab
-        0,
-        0, // where to place the crop
-        phoneRenW,
-        phoneRenH // size of the output, could be stretch
-      );
-
-      ctx.restore();
-    };
-
-    roundedImg.src = upload.presignedUrl;
-
+    const url = canvas.toDataURL();
     const link = document.createElement("a");
     link.download = "filename.png";
-    // link.href = img;
-    // link.click();
+    link.href = url;
+    link.click();
   };
 
   // useEffect(() => {
@@ -200,31 +153,14 @@ const Home: NextPage = () => {
               )}
             </div>
           </div>
-
-          {/* <canvas id="phoneCanva" className="absolute z-30"></canvas> */}
-          {/* <canvas id="ssCanva" className="absolute z-20"></canvas> */}
-
-          {/* {posts.map((post: Post) => (
-            <div key={post.id}>
-              <h2 className="text-xl text-primary">{post.title}</h2>
-              <p>{post.body}</p>
-            </div>
-          ))} */}
         </div>
 
         <div>
-          {/* <canvas
-            id="canva"
-            className="bg-blue"
-            width={1000}
-            height={1000}
-          ></canvas> */}
-
           <canvas
             id="round-corner"
             className="canvas "
             width="300"
-            height="300"
+            height="900"
           ></canvas>
         </div>
 

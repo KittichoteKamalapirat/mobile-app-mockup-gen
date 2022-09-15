@@ -4,7 +4,8 @@ import { UploadedFile } from "../../components/DropzoneField";
 const initialState: UploadedFile = {
   name: "",
   key: "",
-  presignedUrl: "",
+  presignedUrl:
+    "https://res.cloudinary.com/mockx/image/upload/r_150/v1663215745/ss/box_meyccz.png",
   uploadedAt: new Date(),
 };
 // slice basically has state, actions, and reducers
