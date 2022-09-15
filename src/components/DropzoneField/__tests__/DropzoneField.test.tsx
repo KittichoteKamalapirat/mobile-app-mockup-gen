@@ -43,11 +43,13 @@ describe("DropzoneField", () => {
     expect(optional).toBeInTheDocument();
 
     // loading
-    const loading = await screen.findByText("Loading...");
+    const loading = await screen.findByText("Uploading...");
     expect(loading).toBeInTheDocument();
 
     // error
-    const error = await screen.findByText("There was an error with your image.png upload");
+    const error = await screen.findByText(
+      "There was an error with your image.png upload"
+    );
     const inputDiv = await screen.findByLabelText("Image-div");
     expect(inputDiv).toHaveStyle("border-color: #ef4444;");
     expect(error).toBeInTheDocument();
@@ -56,7 +58,9 @@ describe("DropzoneField", () => {
     const uploads = screen.queryByText("Uploads");
     const fileName = screen.queryByText("image.png");
     const viewButton = screen.queryByLabelText("image.png-open");
-    const deleteButton = screen.queryByRole("button", { name: "image.png-remove" });
+    const deleteButton = screen.queryByRole("button", {
+      name: "image.png-remove",
+    });
     expect(uploads).not.toBeInTheDocument();
     expect(fileName).not.toBeInTheDocument();
     expect(viewButton).not.toBeInTheDocument();
@@ -98,11 +102,13 @@ describe("DropzoneField", () => {
     expect(optional).not.toBeInTheDocument();
 
     // loading
-    const loading = await screen.findByText("Loading...");
+    const loading = await screen.findByText("Uploading...");
     expect(loading).toBeInTheDocument();
 
     // error
-    const error = await screen.findByText("There was an error with your pdf.pdf upload");
+    const error = await screen.findByText(
+      "There was an error with your pdf.pdf upload"
+    );
     const inputDiv = await screen.findByLabelText("Image-div");
     expect(inputDiv).toHaveStyle("border-color: #ef4444;");
     expect(error).toBeInTheDocument();
@@ -112,9 +118,13 @@ describe("DropzoneField", () => {
     const fileNameOne = screen.queryByText("image.png");
     const fileNameTwo = screen.queryByText("pdf.pdf");
     const viewButtonOne = screen.queryByLabelText("image.png-open");
-    const deleteButtonOne = screen.queryByRole("button", { name: "image.png-remove" });
+    const deleteButtonOne = screen.queryByRole("button", {
+      name: "image.png-remove",
+    });
     const viewButtonTwo = screen.queryByRole("pdf.pdf-open");
-    const deleteButtonTwo = screen.queryByRole("button", { name: "pdf.pdf-remove" });
+    const deleteButtonTwo = screen.queryByRole("button", {
+      name: "pdf.pdf-remove",
+    });
     expect(uploads).not.toBeInTheDocument();
     expect(fileNameOne).not.toBeInTheDocument();
     expect(fileNameTwo).not.toBeInTheDocument();
@@ -154,10 +164,18 @@ describe("DropzoneField", () => {
     // file details
     const fileNameOne = screen.queryByText("image.png");
     const fileNameTwo = screen.queryByText("pdf.pdf");
-    const viewButtonOne = screen.queryByRole("button", { name: "image.png-open" });
-    const deleteButtonOne = screen.queryByRole("button", { name: "image.png-remove" });
-    const viewButtonTwo = screen.queryByRole("button", { name: "pdf.pdf-open" });
-    const deleteButtonTwo = screen.queryByRole("button", { name: "pdf.pdf-remove" });
+    const viewButtonOne = screen.queryByRole("button", {
+      name: "image.png-open",
+    });
+    const deleteButtonOne = screen.queryByRole("button", {
+      name: "image.png-remove",
+    });
+    const viewButtonTwo = screen.queryByRole("button", {
+      name: "pdf.pdf-open",
+    });
+    const deleteButtonTwo = screen.queryByRole("button", {
+      name: "pdf.pdf-remove",
+    });
     expect(fileNameOne).not.toBeInTheDocument();
     expect(fileNameTwo).not.toBeInTheDocument();
     expect(viewButtonOne).not.toBeInTheDocument();
@@ -234,7 +252,9 @@ describe("DropzoneField", () => {
     // file details
     const fileName = screen.queryByText("pdf.pdf");
     const viewButton = screen.queryByRole("button", { name: "image.png-open" });
-    const deleteButton = screen.queryByRole("button", { name: "image.png-remove" });
+    const deleteButton = screen.queryByRole("button", {
+      name: "image.png-remove",
+    });
     expect(fileName).not.toBeInTheDocument();
     expect(viewButton).not.toBeInTheDocument();
     expect(deleteButton).not.toBeInTheDocument();

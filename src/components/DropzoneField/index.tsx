@@ -150,8 +150,8 @@ const DropzoneField = ({
         />
       ) : null}
       {uploadIsLoading ? (
-        <p className="mt-2.5 font-nunito font-thin text-11px text-grey-420">
-          Loading...
+        <p className="mt-2.5 font-nunito font-thin text-11px text-grey-420 text-center">
+          Uploading...
         </p>
       ) : null}
     </>

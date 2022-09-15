@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import type { NextPage } from "next";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useSelector } from "react-redux";
 import Button from "../src/components/Buttons/Button";
@@ -10,18 +10,20 @@ import Navbar from "../src/components/Navbar";
 
 const Home: NextPage = () => {
   const posts = useSelector((state) => state.posts);
+  const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
+  const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
   const upload: UploadedFile = useSelector((state) => state.upload);
-
+  const [downloadLink, setDownloadLink] = useState<HTMLAnchorElement | null>(
+    null
+  );
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
-  const handleDownload = () => {
+  const createMockup = useCallback(() => {
+    setCanvaIsLoading(true);
+    setCanvaIsRendered(true);
     console.log("handle download");
 
-    // create image
-    // const canva = document.querySelector("#canva");
-    // const ctx = canva?.getContext("2d");
-
-    const canvas = document.getElementById("round-corner");
+    const canvas = document.getElementById("mock-canvas");
     const ctx = canvas?.getContext("2d");
 
     const phoneImg = document.querySelector("#phone");
@@ -29,33 +31,48 @@ const Home: NextPage = () => {
     // const phoneRenH = phoneImg.height;
     const phoneIntrinsicW = phoneImg.naturalWidth;
     const phoneIntrinsicH = phoneImg.naturalHeight;
-
-    const ssImg = document.querySelector("#ss");
-    const ssIntrinsicW = ssImg.naturalWidth;
-    const ssIntrinsicH = ssImg.naturalHeight;
-    // const ssRenW = ssImg.width;
-    // const ssRenH = ssImg.height;
-
     const phoneThicknessW = 26;
     const phoneThicknessH = 22;
 
-    console.log("phone", phoneIntrinsicW, phoneIntrinsicH);
-    console.log("phone", ssIntrinsicW, ssIntrinsicH);
+    // const ssImg = document.querySelector("#ss");
+
+    const ssImg = new Image();
+    ssImg.src = upload.presignedUrl;
+    ssImg.crossOrigin = "anonymous";
 
     // draw ss
-    ctx.drawImage(
-      ssImg,
-      0,
-      0, // top left grab
-      ssIntrinsicW,
-      ssIntrinsicH, // bottom right grab
-      phoneThicknessW,
-      phoneThicknessH, // place ลงมาหน่อยเพราะขอบ
-      ssIntrinsicW,
-      ssIntrinsicH
-    );
+
+    ssImg.onload = function () {
+      const ssIntrinsicW = ssImg.naturalWidth;
+      const ssIntrinsicH = ssImg.naturalHeight;
+      console.log("ss", ssIntrinsicW, ssIntrinsicH);
+
+      ctx.drawImage(
+        ssImg,
+        0,
+        0, // top left grab
+        ssIntrinsicW,
+        ssIntrinsicH, // bottom right grab
+        phoneThicknessW,
+        phoneThicknessH, // place ลงมาหน่อยเพราะขอบ
+        ssIntrinsicW,
+        ssIntrinsicH
+      );
+
+      const url = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = "iphone_13_mock_up_443x890.png";
+
+      link.href = url;
+      setDownloadLink(link);
+      setCanvaIsLoading(false);
+      setCanvaIsRendered(true);
+    };
+
+    console.log("phone", phoneIntrinsicW, phoneIntrinsicH);
 
     // draw phone
+
     ctx.drawImage(
       phoneImg,
       0,
@@ -67,23 +84,57 @@ const Home: NextPage = () => {
       phoneIntrinsicW,
       phoneIntrinsicH // size of the output, could be stretch
     );
+  }, [upload.presignedUrl]);
 
-    const url = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = "filename.png";
-    link.href = url;
-    link.click();
-  };
+  const handleDownload = () => downloadLink && downloadLink.click();
 
-  // useEffect(() => {
-  //   handleDownload();
-  // }, []);
+  useEffect(() => {
+    if (upload.presignedUrl && !canvaIsRendered) createMockup();
+  }, [upload.presignedUrl, canvaIsRendered, createMockup]);
+
+  const phoneContent = (() => {
+    if (canvaIsLoading)
+      return (
+        <div className="relative flex items-center justify-center w-full h-96 mt-20">
+          <p className="absolute z-30">Loading...</p>
+          <img
+            id="phone"
+            src="/images/iphone-13-390x844-screen.png" // blank phone
+            alt="ss"
+            className={`w-1/2 absolute z-20`}
+          />
+        </div>
+      );
+    if (canvaIsRendered) return null;
+    return (
+      <>
+        <img
+          id="phone"
+          src="/images/iphone-13-390x844-screen.png" // blank phone
+          alt="ss"
+          className={`w-1/2 absolute z-20 `}
+        />
+        <div className="absolute z-30">
+          <DropzoneField
+            ariaLabel="Image"
+            inputClass="w-60 h-60 "
+            maxFiles={1}
+            fileUploads={fileUploads}
+            setFileUploads={setFileUploads}
+            showConfirmationOnDelete={false}
+          >
+            Drop an image here
+          </DropzoneField>
+        </div>
+      </>
+    );
+  })();
 
   return (
     <Layout>
       <Navbar />
-      <main className="flex-col items-center justify-center ">
-        <div id="container" className="flex min-h-screen">
+      <main className="flex-col items-center justify-center h-screen">
+        <div id="container" className="flex h-5/6">
           <div id="left" className="my-auto flex-1">
             <div>
               <h1 className="text-3xl font-bold">
@@ -96,79 +147,29 @@ const Home: NextPage = () => {
             </div>
           </div>
 
-          <div id="right" className="mx-auto flex-1">
-            <div className="h-90 ">
-              <div id="mockup" className="relative mx-auto flex justify-center">
-                <img
-                  id="phone"
-                  src="/images/iphone-13-390x844-screen.png" // blank phone
-                  alt="ss"
-                  className="w-60 absolute z-20"
-                />
-
-                {upload.presignedUrl ? (
-                  <img
-                    id="ss"
-                    src={upload.presignedUrl}
-                    crossOrigin="anonymous"
-                    alt="screenshot"
-                    style={{
-                      marginTop: 10,
-                      marginLeft: 4,
-                      width: 220,
-                      borderRadius: 30,
-                      zIndex: 10,
-                    }}
-                  />
-                ) : null}
-
-                {!upload.presignedUrl ? (
-                  <div className="absolute z-30">
-                    <DropzoneField
-                      ariaLabel="Image"
-                      inputClass="w-60 h-60 mt-40 "
-                      maxFiles={1}
-                      fileUploads={fileUploads}
-                      setFileUploads={setFileUploads}
-                      showConfirmationOnDelete={false}
-                    >
-                      Drop an image here
-                    </DropzoneField>
-                  </div>
-                ) : null}
-              </div>
+          <div id="right" className="flex-1">
+            <div
+              id="mockup"
+              className="relative flex justify-center h-full items-center "
+            >
+              {phoneContent}
+              <canvas
+                id="mock-canvas"
+                className={`${
+                  canvaIsRendered && !canvaIsLoading ? "block" : "hidden"
+                } w-1/2`}
+                width="443"
+                height="890"
+              ></canvas>
             </div>
 
-            <div className=" text-center">
-              {upload.presignedUrl ? (
-                <Button
-                  label="Download"
-                  extraClass="my-10 "
-                  onClick={handleDownload}
-                />
-              ) : (
-                <p className="text-grey-900">No presigned url</p>
-              )}
+            <div className="text-center">
+              {canvaIsRendered && !canvaIsLoading ? (
+                <Button label="Download" onClick={handleDownload} />
+              ) : null}
             </div>
           </div>
         </div>
-
-        <div>
-          <canvas
-            id="round-corner"
-            className="canvas "
-            width="443"
-            height="890"
-          ></canvas>
-        </div>
-
-        {/* <CreatePost /> */}
-
-        {/* <Canva /> */}
-
-        {/* hero */}
-
-        {/* <JustCSS /> */}
       </main>
     </Layout>
   );
