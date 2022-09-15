@@ -14,9 +14,6 @@ const Home: NextPage = () => {
 
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
-  const width = 10;
-  const height = 19;
-  const dest = 10;
   const handleDownload = () => {
     console.log("handle download");
 
@@ -24,47 +21,51 @@ const Home: NextPage = () => {
     // const canva = document.querySelector("#canva");
     // const ctx = canva?.getContext("2d");
 
+    const canvas = document.getElementById("round-corner");
+    const ctx = canvas?.getContext("2d");
+
     const phoneImg = document.querySelector("#phone");
-    const phoneRenW = phoneImg.width;
-    const phoneRenH = phoneImg.height;
+    // const phoneRenW = phoneImg.width;
+    // const phoneRenH = phoneImg.height;
     const phoneIntrinsicW = phoneImg.naturalWidth;
-    const phoneIntrinsiH = phoneImg.naturalHeight;
+    const phoneIntrinsicH = phoneImg.naturalHeight;
 
     const ssImg = document.querySelector("#ss");
     const ssIntrinsicW = ssImg.naturalWidth;
-    const ssIntrinsiH = ssImg.naturalHeight;
-    const ssRenW = ssImg.width;
-    const ssRenH = ssImg.height;
+    const ssIntrinsicH = ssImg.naturalHeight;
+    // const ssRenW = ssImg.width;
+    // const ssRenH = ssImg.height;
 
-    const phoneThicknessW = 10;
-    const phoneThicknessH = 10;
+    const phoneThicknessW = 26;
+    const phoneThicknessH = 22;
 
-    // 1. round ss image
-    let canvas = document.getElementById("round-corner");
-    let ctx = canvas.getContext("2d");
+    console.log("phone", phoneIntrinsicW, phoneIntrinsicH);
+    console.log("phone", ssIntrinsicW, ssIntrinsicH);
 
+    // draw ss
     ctx.drawImage(
       ssImg,
       0,
-      0,
+      0, // top left grab
       ssIntrinsicW,
-      ssIntrinsiH,
+      ssIntrinsicH, // bottom right grab
       phoneThicknessW,
-      phoneThicknessW,
-      ssRenW,
-      ssRenH
+      phoneThicknessH, // place ลงมาหน่อยเพราะขอบ
+      ssIntrinsicW,
+      ssIntrinsicH
     );
 
+    // draw phone
     ctx.drawImage(
       phoneImg,
       0,
       0, // top left corner of the grab
       phoneIntrinsicW,
-      phoneIntrinsiH, // bottom right corner of the grab
+      phoneIntrinsicH, // bottom right corner of the grab
       0,
       0, // where to place the crop
-      phoneRenW,
-      phoneRenH // size of the output, could be stretch
+      phoneIntrinsicW,
+      phoneIntrinsicH // size of the output, could be stretch
     );
 
     const url = canvas.toDataURL("image/png");
@@ -109,6 +110,7 @@ const Home: NextPage = () => {
                   <img
                     id="ss"
                     src={upload.presignedUrl}
+                    crossOrigin="anonymous"
                     alt="screenshot"
                     style={{
                       marginTop: 10,
@@ -133,11 +135,7 @@ const Home: NextPage = () => {
                       Drop an image here
                     </DropzoneField>
                   </div>
-                ) : (
-                  <p className="text-grey-900 w-60 h-80 mt-40">
-                    there is presigned url
-                  </p>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -159,8 +157,8 @@ const Home: NextPage = () => {
           <canvas
             id="round-corner"
             className="canvas "
-            width="300"
-            height="900"
+            width="443"
+            height="890"
           ></canvas>
         </div>
 

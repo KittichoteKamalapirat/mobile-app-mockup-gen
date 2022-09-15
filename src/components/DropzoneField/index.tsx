@@ -103,10 +103,6 @@ const DropzoneField = ({
       ? "There was an error with your upload"
       : "";
 
-  console.log("isDragReject", isDragReject);
-  console.log("fileRejections", fileRejections);
-  console.log("inputError", inputError);
-
   const style = useMemo(
     () => ({
       ...baseStyle,

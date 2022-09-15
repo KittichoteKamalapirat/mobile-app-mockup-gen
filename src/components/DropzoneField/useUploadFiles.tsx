@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { UploadedFile } from ".";
 import { createUpload } from "../../redux/slices/uploadReducer";
+import { roundCloudinaryImg } from "../../utils/roundCloudinaryImg";
 
 interface Props {
   acceptedFiles: File[];
@@ -28,9 +29,12 @@ const useUploadFiles = ({
 
   useEffect(() => {
     const handleS3Upload = async () => {
+      console.log("handle cloudinary upload");
       const uploadedFiles: UploadedFile[] = [];
       for (let index = 0; index < acceptedFiles.length; index++) {
         const file = acceptedFiles[index];
+
+        console.log("file", file);
         if (index === 0) {
           setUploadIsLoading(true);
           setUploadError("");
@@ -38,50 +42,66 @@ const useUploadFiles = ({
 
         try {
           //   // fetch presigned url
-          //   const response = await axios.get(
-          //     `${process.env.NEXT_PUBLIC_API_URL}/presign_s3`,
-          //     {
-          //       params: {
-          //         key: file.name,
-          //         customer_id: identifier,
-          //         file_type: file.type,
-          //       },
-          //     }
-          //   );
 
-          //   // upload file
-          //   const { url, fields } = response.data;
-          //   const formData = new FormData();
+          const cloudinaryUploadEndPoint =
+            "https://api.cloudinary.com/v1_1/mockx/image/upload";
 
-          //   // add file to form data
-          //   Object.entries(fields).forEach(([key, value]) =>
-          //     formData.append(key, value as string)
-          //   );
-          //   formData.append("file", file);
+          // const response = await axios.get(
+          //   `${process.env.NEXT_PUBLIC_API_URL}/presign_s3`,
+          //   {
+          //     params: {
+          //       key: file.name,
+          //       customer_id: identifier,
+          //       file_type: file.type,
+          //     },
+          //   }
+          // );
 
-          //   await axios.post(url, formData);
+          // // upload file
+          // const { url, fields } = response.data;
+          const formData = new FormData();
 
-          // keep track of all uploaded files
-          uploadedFiles.push({
-            // key: fields.key, TODO
-            key: "x",
-            name: file.name,
-            presignedUrl: URL.createObjectURL(file),
-            uploadedAt: new Date(),
+          formData.append("file", file);
+
+          formData.append("upload_preset", "ss_uploads");
+
+          console.log("formdata", formData);
+          const options = {
+            url: cloudinaryUploadEndPoint,
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json;charset=UTF-8",
+            },
+            data: {
+              file: formData,
+              // api_key: process.env.CLOUDINARY_API_KEY,
+              // signature: process.env.CLOUDINARY_API_SECRET,
+            },
+          };
+
+          // const response = await axios(options);
+
+          const response = await fetch(cloudinaryUploadEndPoint, {
+            method: "POST",
+            body: formData,
           });
 
-          console.log("dispatch!");
+          const data = await response.json();
+
+          console.log("data", data);
 
           dispatch(
             createUpload({
               // key: fields.key, TODO
-              key: "x",
-              name: file.name,
-              presignedUrl: URL.createObjectURL(file),
-              uploadedAt: new Date(),
+              key: data.public_id,
+              name: `${data.original_filename}.${data.format}`,
+              presignedUrl: roundCloudinaryImg(data.secure_url, "r_45"),
+              uploadedAt: data.created_at,
             })
           );
         } catch (error) {
+          console.log("error", error);
           setUploadError(`There was an error with your ${file.name} upload`);
         }
 

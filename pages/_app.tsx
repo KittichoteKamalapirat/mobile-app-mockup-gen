@@ -9,7 +9,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <Provider store={store}>
       <CloudinaryContext cloudName="mockx">
         <Component {...pageProps} />
-        {/* <Image publicId="sample" width="50" /> */}
       </CloudinaryContext>
     </Provider>
   );
