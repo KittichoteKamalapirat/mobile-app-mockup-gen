@@ -67,7 +67,7 @@ const Home: NextPage = () => {
       phoneRenH // size of the output, could be stretch
     );
 
-    const url = canvas.toDataURL();
+    const url = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.download = "filename.png";
     link.href = url;
