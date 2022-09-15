@@ -1,1 +1,1 @@
-export const brandName = "Brand Name";
+export const brandName = "Mocc Up";

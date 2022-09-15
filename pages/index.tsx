@@ -1,14 +1,22 @@
 /* eslint-disable @next/next/no-img-element */
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import { useSelector } from "react-redux";
+import { createCheckoutSession } from "../functions/src/stripe/createCheckoutSession";
+import usePremiumStatus from "../functions/src/stripe/usePremiumStatus";
 import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Layout from "../src/components/layouts/Layout";
+import Login from "../src/components/Login";
 import Navbar from "../src/components/Navbar";
+import { auth, signInWithGoogle } from "../src/firebase/client";
 
 const Home: NextPage = () => {
+  const [user, userLoading] = useAuthState(auth);
+  const userIsPremium = usePremiumStatus(user);
+
   const posts = useSelector((state) => state.posts);
   const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
   const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
@@ -132,7 +140,21 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <Navbar />
+      {!user && userLoading && <h1>Loading...</h1>}
+      {!user && !userLoading && <Login />}
+      {user && !userLoading && (
+        <div>
+          <h1>Hello, {user.displayName}</h1>
+          {!userIsPremium ? (
+            <button onClick={() => createCheckoutSession(user.uid)}>
+              Upgrade to premium!
+            </button>
+          ) : (
+            <h2>Have a cookie 🍪 Premium customer!</h2>
+          )}
+        </div>
+      )}
+
       <main className="flex-col items-center justify-center h-screen">
         <div id="container" className="flex h-5/6">
           <div id="left" className="my-auto flex-1">
@@ -170,6 +192,8 @@ const Home: NextPage = () => {
             </div>
           </div>
         </div>
+
+        <button onClick={signInWithGoogle}>sign in</button>
       </main>
     </Layout>
   );
