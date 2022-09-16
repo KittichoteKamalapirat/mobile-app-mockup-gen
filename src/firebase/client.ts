@@ -7,6 +7,7 @@ import {
   getFirestore,
   setDoc,
 } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6MKTiq2HGxtiNpx6avNaU9Ix0dfM80-g",
@@ -17,12 +18,14 @@ const firebaseConfig = {
   appId: "1:563364205858:web:84f54ce28a48074b79417b",
   measurementId: "G-PDP8C16NPX",
 };
+import { signOut } from "firebase/auth";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const firestore = getFirestore(app);
+export const functions = getFunctions(app);
 const provider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
@@ -45,4 +48,30 @@ export const signInWithGoogle = async () => {
   } catch (error) {
     console.log("error", error);
   }
+};
+
+export const logout = () => {
+  const response = signOut(auth);
+  console.log("response", response);
+  console.log("sign out");
+};
+
+export const openCustomerPortal = async () => {
+  console.log("open portal");
+  console.log("1");
+
+  console.log("2");
+  const functionRef = httpsCallable(
+    functions,
+    "ext-firestore-stripe-payments-createPortalLink"
+  );
+  console.log("3");
+  console.log("function ref", functionRef);
+  const { data } = await functionRef({
+    returnUrl: window.location.origin,
+  });
+  console.log("4");
+
+  console.log("data in portal", data);
+  window.location.assign(data?.url);
 };

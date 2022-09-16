@@ -4,16 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 import { useSelector } from "react-redux";
-import { createCheckoutSession } from "../functions/src/stripe/createCheckoutSession";
 import usePremiumStatus from "../functions/src/stripe/usePremiumStatus";
 import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Layout from "../src/components/layouts/Layout";
-import Login from "../src/components/Login";
-import Navbar from "../src/components/Navbar";
-import { auth, signInWithGoogle } from "../src/firebase/client";
+import Toggle from "../src/components/Toggle";
+import { auth } from "../src/firebase/client";
 
 const Home: NextPage = () => {
+  const [isTransparent, setIsTransparent] = useState(false);
   const [user, userLoading] = useAuthState(auth);
   const userIsPremium = usePremiumStatus(user);
 
@@ -140,21 +139,6 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      {!user && userLoading && <h1>Loading...</h1>}
-      {!user && !userLoading && <Login />}
-      {user && !userLoading && (
-        <div>
-          <h1>Hello, {user.displayName}</h1>
-          {!userIsPremium ? (
-            <button onClick={() => createCheckoutSession(user.uid)}>
-              Upgrade to premium!
-            </button>
-          ) : (
-            <h2>Have a cookie 🍪 Premium customer!</h2>
-          )}
-        </div>
-      )}
-
       <main className="flex-col items-center justify-center h-screen">
         <div id="container" className="flex h-5/6">
           <div id="left" className="my-auto flex-1">
@@ -185,15 +169,23 @@ const Home: NextPage = () => {
               ></canvas>
             </div>
 
-            <div className="text-center">
-              {canvaIsRendered && !canvaIsLoading ? (
+            {canvaIsRendered && !canvaIsLoading ? (
+              <div className="text-center">
                 <Button label="Download" onClick={handleDownload} />
-              ) : null}
-            </div>
+                <div className="mt-10">
+                  <Toggle
+                    onClick={() => {
+                      console.log("clocked");
+                      setIsTransparent(!isTransparent);
+                    }}
+                    isChecked={isTransparent}
+                    isDisabled={!userIsPremium}
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
-
-        <button onClick={signInWithGoogle}>sign in</button>
       </main>
     </Layout>
   );

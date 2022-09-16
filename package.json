@@ -26,6 +26,7 @@
     "react-dropzone": "^14.2.2",
     "react-firebase-hooks": "^5.0.3",
     "react-hook-form": "^7.35.0",
+    "react-icons": "^4.4.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
     "stripe": "^10.8.0"

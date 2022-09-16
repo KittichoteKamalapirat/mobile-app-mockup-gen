@@ -1,7 +1,6 @@
-import React from "react";
-import { brandName } from "../constants/brand";
 import Link from "next/link";
-import Container from "./containers/Container";
+import { brandName } from "../constants/brand";
+import AuthDisplay from "./AuthDisplay";
 
 interface Props {}
 
@@ -18,7 +17,8 @@ const Navbar = ({}: Props) => {
         <div>
           <ul className="flex gap-4">
             {/* <Link>Contact</Link> */}
-            {/* <Link>About</Link> */}
+            {/* <Link href="/">About</Link> */}
+            <AuthDisplay />
           </ul>
         </div>
       </div>
