@@ -6,7 +6,7 @@ interface Props {}
 
 const Navbar = ({}: Props) => {
   return (
-    <div className="flex justify-center py-4 px-10 w-full top-0 fixed bg-grey-900 text-grey-0 z-50">
+    <div className="flex justify-center py-2 px-10 w-full top-0 fixed bg-grey-900 text-grey-0 z-50">
       <div className="flex justify-between items-center md:max-w-7xl w-full ">
         <div className="flex">
           {/* <div className="mr-4">logo image</div> */}

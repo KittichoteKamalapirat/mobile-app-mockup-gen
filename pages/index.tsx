@@ -2,6 +2,7 @@
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useDispatch } from "react-redux";
 
 import { useSelector } from "react-redux";
 import usePremiumStatus from "../functions/src/stripe/usePremiumStatus";
@@ -10,11 +11,13 @@ import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Layout from "../src/components/layouts/Layout";
 import Toggle from "../src/components/Toggle";
 import { auth } from "../src/firebase/client";
+import { createMockup } from "../src/redux/slices/mockupReducer";
 
 const Home: NextPage = () => {
   const [isTransparent, setIsTransparent] = useState(false);
   const [user, userLoading] = useAuthState(auth);
   const userIsPremium = usePremiumStatus(user);
+  const dispatch = useDispatch();
 
   const posts = useSelector((state) => state.posts);
   const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
@@ -25,7 +28,7 @@ const Home: NextPage = () => {
   );
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
-  const createMockup = useCallback(() => {
+  const handleCreateMockup = useCallback(() => {
     setCanvaIsLoading(true);
     setCanvaIsRendered(true);
     console.log("handle download");
@@ -71,6 +74,8 @@ const Home: NextPage = () => {
       link.download = "iphone_13_mock_up_443x890.png";
 
       link.href = url;
+      dispatch(createMockup({ url }));
+
       setDownloadLink(link);
       setCanvaIsLoading(false);
       setCanvaIsRendered(true);
@@ -96,8 +101,8 @@ const Home: NextPage = () => {
   const handleDownload = () => downloadLink && downloadLink.click();
 
   useEffect(() => {
-    if (upload.presignedUrl && !canvaIsRendered) createMockup();
-  }, [upload.presignedUrl, canvaIsRendered, createMockup]);
+    if (upload.presignedUrl && !canvaIsRendered) handleCreateMockup();
+  }, [upload.presignedUrl, canvaIsRendered, handleCreateMockup]);
 
   const phoneContent = (() => {
     if (canvaIsLoading)

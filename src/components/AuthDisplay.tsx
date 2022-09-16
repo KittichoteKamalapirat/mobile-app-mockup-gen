@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { createCheckoutSession } from "../../functions/src/stripe/createCheckoutSession";
 import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
@@ -7,8 +7,6 @@ import Button, { ButtonTypes } from "./Buttons/Button";
 import Dropdown from "./Dropdown";
 import Login from "./Login";
 import Tag from "./Tag";
-
-import { BsFillCaretDownFill } from "react-icons/bs";
 
 interface Props {}
 
@@ -27,29 +25,7 @@ const AuthDisplay = ({}: Props) => {
   return (
     <div>
       {user && !userLoading && (
-        <div>
-          <Dropdown
-            isOpen={modalIsOpen}
-            onClick={() => setModalIsOpen(!modalIsOpen)}
-            items={[
-              {
-                label: "Log out",
-                itemOnClick: () => logout(),
-              },
-              {
-                label: "Pricing",
-                href: "/pricing",
-              },
-              {
-                label: "Account",
-                href: "/account",
-              },
-            ]}
-          >
-            <h1 className="text-md">Hi, {user.displayName?.split(" ")[0]}</h1>
-            <BsFillCaretDownFill />
-          </Dropdown>
-
+        <div className="flex items-center">
           {!userIsPremium ? (
             <Button
               type={ButtonTypes.ACTION}
@@ -57,8 +33,33 @@ const AuthDisplay = ({}: Props) => {
               onClick={() => createCheckoutSession(user.uid)}
             />
           ) : (
-            <Tag content="🍪 Premium" />
+            <Tag content="🍪 Premium" extraClass="ml-auto" />
           )}
+          <Dropdown
+            isOpen={modalIsOpen}
+            onClick={() => setModalIsOpen(!modalIsOpen)}
+            items={[
+              {
+                label: "My Mockups",
+                href: "/my_mockups",
+              },
+              {
+                label: "Account",
+                href: "/account",
+              },
+
+              {
+                label: "Pricing",
+                href: "/pricing",
+              },
+              {
+                label: "Log out",
+                itemOnClick: () => logout(),
+              },
+            ]}
+          >
+            <h1 className="text-md">Hi, {user.displayName?.split(" ")[0]}</h1>
+          </Dropdown>
         </div>
       )}
     </div>

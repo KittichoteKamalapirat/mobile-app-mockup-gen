@@ -4,8 +4,11 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
   getFirestore,
+  query,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -74,4 +77,18 @@ export const openCustomerPortal = async () => {
 
   console.log("data in portal", data);
   window.location.assign(data?.url);
+};
+
+export const fetchSubscription = async (uid: string) => {
+  const subsRef = collection(firestore, "users", uid, "subscriptions");
+  const subsQuery = query(
+    subsRef,
+    where("status", "in", ["trialing", "active", "past_due", "unpaid"])
+  );
+
+  const subs = await getDocs(subsQuery);
+  console.log("length", subs.docs);
+  if (subs.docs.length > 0) return subs.docs[0].data();
+
+  return null;
 };
