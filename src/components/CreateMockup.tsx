@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
@@ -91,6 +91,21 @@ const CreateMockup = ({}: Props) => {
 
   const handleDownload = () => downloadLink && downloadLink.click();
 
+  const handleToggleBg = useCallback((bgIsTransparent: boolean) => {
+    const canvas = document.getElementById("mock-canvas") as HTMLCanvasElement;
+
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+
+    if (bgIsTransparent) {
+      ctx.clearRect(0, 0, 443, 893);
+    } else {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(0, 0, 443, 893);
+    }
+  }, []);
+
   const phoneContent = (() => {
     if (canvaIsLoading)
       return (
@@ -128,6 +143,10 @@ const CreateMockup = ({}: Props) => {
       </>
     );
   })();
+
+  useEffect(() => {
+    handleToggleBg(isTransparent);
+  }, [isTransparent, handleToggleBg]);
 
   useEffect(() => {
     if (upload.presignedUrl && !canvaIsRendered) handleCreateMockup();

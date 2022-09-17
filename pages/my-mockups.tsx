@@ -2,7 +2,6 @@ import { collection, doc, onSnapshot } from "firebase/firestore";
 import { useEffect } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
-import Button from "../src/components/Buttons/Button";
 import Container from "../src/components/containers/Container";
 import Layout from "../src/components/layouts/Layout";
 import { Loading } from "../src/components/Loading";

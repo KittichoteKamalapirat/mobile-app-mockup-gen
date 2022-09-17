@@ -25,8 +25,6 @@ interface Props {
 
 const MockupItem = ({ mockup }: Props) => {
   console.log("mockup", mockup.name);
-  const [canvaW, setCanvaW] = useState(0);
-  const [canvaH, setCanvaH] = useState(0);
 
   const [user, userLoading] = useAuthState(auth);
   const [isTransparent, setIsTransparent] = useState(false);
@@ -34,7 +32,7 @@ const MockupItem = ({ mockup }: Props) => {
   const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
   const userIsPremium = usePremiumStatus(user);
 
-  const drawMockupFromImg = useCallback(
+  const handleDrawMockupFromImg = useCallback(
     (bgIsTransparent: boolean) => {
       const canvas = document.getElementById(
         `mockup-canva-${mockup.id}`
@@ -92,10 +90,6 @@ const MockupItem = ({ mockup }: Props) => {
     [isTransparent]
   );
 
-  useEffect(() => {
-    handleToggleBg(isTransparent);
-  }, [isTransparent, handleToggleBg]);
-
   const handleDownloadTransprent = () => {
     console.log("istran", isTransparent);
     // transprent
@@ -123,11 +117,14 @@ const MockupItem = ({ mockup }: Props) => {
     link.href = urlWhiteBg;
     link.click();
   };
-  useEffect(() => {
-    drawMockupFromImg(isTransparent);
-  }, [canvaIsLoading, drawMockupFromImg]);
 
-  console.log("cava", canvaW, canvaH);
+  useEffect(() => {
+    handleToggleBg(isTransparent);
+  }, [isTransparent, handleToggleBg]);
+
+  useEffect(() => {
+    handleDrawMockupFromImg(isTransparent);
+  }, [canvaIsLoading, handleDrawMockupFromImg]);
 
   if (canvaIsLoading) return <Loading />;
 
