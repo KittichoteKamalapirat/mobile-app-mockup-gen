@@ -76,6 +76,7 @@ export const openCustomerPortal = async () => {
   console.log("4");
 
   console.log("data in portal", data);
+
   window.location.assign(data?.url);
 };
 

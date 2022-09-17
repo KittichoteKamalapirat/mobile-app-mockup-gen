@@ -11,10 +11,13 @@
     "gen-env": "gen-env-types .env.local -o src/env.d.ts -e ."
   },
   "dependencies": {
+    "@react-three/drei": "^9.31.1",
+    "@react-three/fiber": "^8.7.4",
     "@reduxjs/toolkit": "^1.8.5",
     "@stripe/stripe-js": "^1.36.0",
     "@types/jest": "^29.0.2",
     "@types/react-redux": "^7.1.24",
+    "@types/three": "^0.144.0",
     "axios": "^0.27.2",
     "cloudinary-react": "^1.8.1",
     "firebase": "^9.9.4",
@@ -31,6 +34,7 @@
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
     "stripe": "^10.8.0",
+    "three": "^0.144.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
