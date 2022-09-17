@@ -15,6 +15,7 @@ interface Props {}
 
 const Account = ({}: Props) => {
   const [user, userLoading] = useAuthState(auth);
+  console.log("user", user);
   const userIsPremium = usePremiumStatus(user);
 
   const [subs, setSubs] = useState<any>();

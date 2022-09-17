@@ -41,7 +41,7 @@ const AuthDisplay = ({}: Props) => {
             items={[
               {
                 label: "My Mockups",
-                href: "/my_mockups",
+                href: "/my-mockups",
               },
               {
                 label: "Account",

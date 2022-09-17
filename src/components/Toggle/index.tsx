@@ -19,6 +19,7 @@ const Toggle = ({ isDisabled, isChecked, onClick }: Props) => {
         disabled={isDisabled}
       />
       {/* Change the color of the toggle component by updating the color classes of peer-focus and peer-checked. */}
+
       <div
         className="w-11 h-6 bg-gray-200 rounded-full peer 
         peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 

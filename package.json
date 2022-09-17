@@ -30,7 +30,8 @@
     "react-icons": "^4.4.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
-    "stripe": "^10.8.0"
+    "stripe": "^10.8.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@redux-devtools/core": "^3.13.1",
