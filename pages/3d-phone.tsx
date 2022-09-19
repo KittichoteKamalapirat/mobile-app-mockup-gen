@@ -19,7 +19,6 @@ const ThreeDimension = ({}: Props) => {
           <Cube />
         </Suspense>
       </Canvas>
-
       <Canvas style={{ height: "100vh" }}>
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />

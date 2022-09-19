@@ -5,6 +5,7 @@ import usePremiumStatus from "../functions/src/stripe/usePremiumStatus";
 import Button from "../src/components/Buttons/Button";
 import Layout from "../src/components/layouts/Layout";
 import { Loading } from "../src/components/Loading";
+import PageHeading from "../src/components/typography/PageHeading";
 import {
   auth,
   fetchSubscription,
@@ -60,7 +61,7 @@ const Account = ({}: Props) => {
   );
   return (
     <Layout>
-      <h1>My account</h1>
+      <PageHeading>My account</PageHeading>
 
       {userIsPremium && premiumBody}
     </Layout>
