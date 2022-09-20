@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
 import { auth } from "../firebase/client";
 import { createMockup } from "../redux/slices/mockupReducer";
+import { RootState } from "../redux/store";
 import Button from "./Buttons/Button";
 import DropzoneField, { UploadedFile } from "./DropzoneField";
 import Toggle from "./Toggle";
@@ -19,7 +20,7 @@ const CreateMockup = ({}: Props) => {
   const posts = useSelector((state) => state.posts);
   const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
   const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
-  const upload: UploadedFile = useSelector((state) => state.upload);
+  const upload: UploadedFile = useSelector((state: RootState) => state.upload);
   const [downloadLink, setDownloadLink] = useState<HTMLAnchorElement | null>(
     null
   );

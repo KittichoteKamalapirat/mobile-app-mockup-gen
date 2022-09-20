@@ -7,6 +7,7 @@ import Button, { ButtonTypes } from "./Buttons/Button";
 import Dropdown from "./Dropdown";
 import Login from "./Login";
 import Tag from "./Tag";
+import PageHeading from "./typography/PageHeading";
 
 interface Props {}
 
@@ -58,7 +59,7 @@ const AuthDisplay = ({}: Props) => {
               },
             ]}
           >
-            <h1 className="text-md">Hi, {user.displayName?.split(" ")[0]}</h1>
+            <PageHeading heading={`Hi, ${user.displayName?.split(" ")[0]}`} />
           </Dropdown>
         </div>
       )}
