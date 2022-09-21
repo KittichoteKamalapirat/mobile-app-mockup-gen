@@ -5,6 +5,7 @@ import { HexColorPicker } from "react-colorful";
 import { BiArrowBack } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { Euler } from "three";
+import { proxy, useSnapshot } from "valtio";
 import IPhone from "../src/components/3d/IPhone";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
@@ -44,7 +45,7 @@ const PhoneScene = () => {
         {/* <Environment files="/threejs/royal_esplanade_1k.hdr" /> */}
 
         <ContactShadows
-          position={[0, -0.8, 0]}
+          position={[1, -2, 0]}
           opacity={1}
           scale={10}
           blur={1}
@@ -55,17 +56,23 @@ const PhoneScene = () => {
   );
 };
 
+export const DEFAULT_ROTATION = new Euler(-Math.PI / 2, 0, Math.PI);
+export const state = proxy({
+  rotation: DEFAULT_ROTATION,
+  count: 0,
+});
+
 const ThreeDimension = ({}: Props) => {
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
   const [canvaColor, setCanvaColor] = useState("#aabbcc");
-  const initialRotation = new Euler(-Math.PI / 2, 0, Math.PI);
-  const [rotation, setRotation] = useState(initialRotation);
+
+  const snap = useSnapshot(state);
+
+  console.log("snap", snap);
 
   const canvaRef = useRef<HTMLCanvasElement>(null);
   console.log("canvaRef", canvaRef);
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
-
-  console.log("upload", upload);
 
   // create img from canvas
   const handleDownload = () => {
@@ -142,21 +149,37 @@ const ThreeDimension = ({}: Props) => {
       <Canvas
         style={{ height: "100vh", backgroundColor: canvaColor }}
         gl={{ preserveDrawingBuffer: true }}
-        // camera={{ position: [2, 0, 1010], fov: 15 }}
+        camera={{
+          position: [0, 0, 25], //x,y,z?
+          fov: 15,
+        }} // x z y
+        shadows={true}
       >
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />
-        <spotLight intensity={0.3} position={[5, 20, 20]} />
-        <directionalLight position={[-2, 5, 2]} intensity={1} />
+        <spotLight intensity={0.9} position={[0, 20, 5]} />
+        <directionalLight
+          position={[0, 20, 5]} //x,y,z
+          intensity={1}
+        />
         <Suspense fallback={null}>
-          <Iphone13Concept upload={upload} rotation={rotation} />
+          <Iphone13Concept upload={upload} />
+
+          {/* Floor */}
 
           <ContactShadows
-            position={[0, -0.8, 0]}
-            opacity={1}
-            scale={10}
-            blur={1}
-            far={0.8}
+            // position={[0, -0.8, 0]} // x z y
+            position={[0, 0.8, 0]} // x y z?
+            rotation-x={-Math.PI}
+            // opacity={1}
+            // scale={10} // more => kinda more gradient and blur
+
+            // blur={1}
+            // far={0.8} // darkness: more => darker
+            // width={10}
+            // height={10}
+            // resolution={256}
+            // color="#000000"
           />
         </Suspense>
       </Canvas>
@@ -175,8 +198,11 @@ const ThreeDimension = ({}: Props) => {
 
       <Button
         label="reset rotation"
-        onClick={() => setRotation(initialRotation)}
+        onClick={() => {
+          state.rotation = new Euler(-Math.PI / 2, 0, Math.PI);
+        }}
       />
+      <button onClick={() => ++state.count}>{snap.count}</button>
 
       <Button label="Download" onClick={handleDownload} />
     </div>
