@@ -6,6 +6,7 @@ import { BiArrowBack } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { Euler } from "three";
 import { proxy, useSnapshot } from "valtio";
+import Cube from "../src/components/3d/Cube";
 import IPhone from "../src/components/3d/IPhone";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
@@ -41,8 +42,7 @@ const PhoneScene = () => {
       <spotLight intensity={0.3} position={[5, 20, 20]} />
       <directionalLight position={[-2, 5, 2]} intensity={1} />
       <Suspense fallback={null}>
-        <IPhone upload={upload} />
-        {/* <Environment files="/threejs/royal_esplanade_1k.hdr" /> */}
+        <Cube />
 
         <ContactShadows
           position={[1, -2, 0]}
@@ -95,24 +95,29 @@ const ThreeDimension = ({}: Props) => {
 
   return (
     <div className="h-screen relative ">
-      {/* <Canvas className="h-screen">
+      <Canvas
+        className="h-screen"
+        camera={{
+          position: [0, 0, 25], //x,y,z?
+          rotation: [0, 0, -Math.PI / 2], //x,y,z?
+
+          fov: 15,
+        }} //
+      >
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[-2, 5, 2]} intensity={1} />
         <Suspense fallback={null}>
           <Cube />
-          <Environment files="/threejs/royal_esplanade_1k.hdr" />
           <ContactShadows
-            // rotation-x={Math.PI / 2}
-            // position={[0, 0, 0]}
+            // rotation-x={-Math.PI}
+            position={[0, -0.8, 0]}
             opacity={0.9}
-            width={10}
-            height={10}
             blur={2}
             far={0.1}
           />
         </Suspense>
-      </Canvas> */}
+      </Canvas>
 
       <LinkButton
         label="Back Home"
@@ -146,7 +151,7 @@ const ThreeDimension = ({}: Props) => {
         </Suspense>
       </Canvas> */}
 
-      <Canvas
+      {/* <Canvas
         style={{ height: "100vh", backgroundColor: canvaColor }}
         gl={{ preserveDrawingBuffer: true }}
         camera={{
@@ -165,12 +170,11 @@ const ThreeDimension = ({}: Props) => {
         <Suspense fallback={null}>
           <Iphone13Concept upload={upload} />
 
-          {/* Floor */}
 
           <ContactShadows
             // position={[0, -0.8, 0]} // x z y
             position={[0, 0.8, 0]} // x y z?
-            rotation-x={-Math.PI}
+            rotation-y={-Math.PI}
             // opacity={1}
             // scale={10} // more => kinda more gradient and blur
 
@@ -182,7 +186,7 @@ const ThreeDimension = ({}: Props) => {
             // color="#000000"
           />
         </Suspense>
-      </Canvas>
+      </Canvas> */}
 
       <DropzoneField
         ariaLabel="Image"
