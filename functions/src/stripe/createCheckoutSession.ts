@@ -99,7 +99,7 @@ export const createCheckoutSession = async (uid: string) => {
     // Wait for the CheckoutSession to get attached by the extension
     onSnapshot(docRef, async (snap) => {
       console.log("on snap shot");
-      const { error, url } = snap.data();
+      const { error, url } = snap.data() || {}; // TODO check this
 
       console.log("data", snap.data());
       console.log("error", error);

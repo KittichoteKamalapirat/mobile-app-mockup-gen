@@ -1,10 +1,10 @@
 import { useGLTF } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { TextureLoader } from "three";
-import { proxy } from "valtio";
-import { UploadedFile } from "../DropzoneField";
+import { proxy, useSnapshot } from "valtio";
 import placeholder from "../../../public/images/placeholder.png";
+import { UploadedFile } from "../DropzoneField";
 
 interface Props {
   upload: UploadedFile;
@@ -45,10 +45,19 @@ const initialState = proxy({
   },
 });
 
+type GLTFResult = any & {
+  // todo change any to GLTF
+  nodes: {
+    Pyramid: THREE.Mesh;
+  };
+  materials: {
+    ["default"]: THREE.MeshStandardMaterial;
+  };
+};
 const IPhone = ({ upload }: Props) => {
-  const group = useRef();
-  const { nodes, materials } = useGLTF("/iphone.gltf");
-  const snap = proxy(initialState);
+  const group = useRef(null);
+  const { nodes, materials } = useGLTF("/iphone.gltf") as GLTFResult;
+  const snap = useSnapshot(initialState);
 
   console.log("upadload", upload);
   const texture = useLoader(

@@ -1,4 +1,4 @@
-import { TextureLoader } from "three";
+import { Euler, TextureLoader } from "three";
 import { useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import React, { useRef } from "react";
@@ -9,6 +9,7 @@ import { UploadedFile } from "../DropzoneField";
 
 interface Props {
   upload: UploadedFile;
+  rotation: Euler;
 }
 
 type GLTFResult = GLTF & {
@@ -71,7 +72,7 @@ type GLTFResult = GLTF & {
   };
 };
 
-const Iphone13Concept = ({ upload }: Props) => {
+const Iphone13Concept = ({ upload, rotation }: Props) => {
   const { nodes, materials } = useGLTF(
     "/threejs/iphone-13-pro-concept.gltf"
   ) as GLTFResult;
@@ -83,9 +84,10 @@ const Iphone13Concept = ({ upload }: Props) => {
 
   return (
     <group dispose={null}>
-      <group position={[0, 0, -0.01]} rotation={[-Math.PI / 2, 0, Math.PI]}>
-        <group rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
-          <group rotation={[-Math.PI / 2, 0, 0]} scale={80}>
+      {/* x z y */}
+      <group position={[0, 0, -0.01]} rotation={rotation}>
+        <group rotation={[0, 0, 0]} scale={0.01}>
+          <group rotation={[0, 0, 0]} scale={80}>
             <mesh
               geometry={nodes.BackCover_Blue_0.geometry}
               material={materials.Blue}

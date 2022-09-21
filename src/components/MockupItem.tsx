@@ -1,3 +1,4 @@
+import { User } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
@@ -30,7 +31,7 @@ const MockupItem = ({ mockup }: Props) => {
   const [isTransparent, setIsTransparent] = useState(false);
   const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
   const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
-  const userIsPremium = usePremiumStatus(user);
+  const userIsPremium = usePremiumStatus(user as User);
 
   const handleDrawMockupFromImg = useCallback(
     (bgIsTransparent: boolean) => {

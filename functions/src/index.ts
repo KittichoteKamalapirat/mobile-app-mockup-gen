@@ -1,5 +1,4 @@
 /* eslint-disable object-curly-spacing */
-import Stripe from "stripe";
 import * as functions from "firebase-functions";
 
 // // Start writing Firebase Functions

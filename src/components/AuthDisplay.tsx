@@ -1,3 +1,4 @@
+import { User } from "firebase/auth";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { createCheckoutSession } from "../../functions/src/stripe/createCheckoutSession";
@@ -13,7 +14,7 @@ interface Props {}
 
 const AuthDisplay = ({}: Props) => {
   const [user, userLoading] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user);
+  const userIsPremium = usePremiumStatus(user as User);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
 

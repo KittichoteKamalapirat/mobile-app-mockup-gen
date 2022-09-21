@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from "uuid";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
 import { auth, firestore } from "../../firebase/client";
 
 export interface Mockup {
@@ -19,7 +19,11 @@ export const createMockup = createAsyncThunk(
         name: mockup.name,
         url: mockup.url,
       };
-      const userDocRef = doc(firestore, "users", auth.currentUser?.uid);
+      const userDocRef = doc(
+        firestore as any,
+        "users",
+        auth.currentUser?.uid as string
+      ); // TODO
       const mockupColRef = collection(userDocRef, "mockups");
 
       const docRef = await addDoc(mockupColRef, newMockup);
@@ -47,13 +51,16 @@ export const mockupSlice = createSlice({
     // },
   },
   extraReducers: {
-    [createMockup.pending]: (state, action) => {
+    [createMockup.pending as any]: (state, action) => {
+      // TODO
       console.log("pending state", state);
     },
-    [createMockup.fulfilled]: (state, action) => {
+    [createMockup.fulfilled as any]: (state, action) => {
+      // TODO
       console.log("fulfileed state", state);
     },
-    [createMockup.rejected]: (sstate, action) => {
+    [createMockup.rejected as any]: (state, action) => {
+      // TODO
       console.log("rejected state", state);
     },
   },

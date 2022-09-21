@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { User } from "firebase/auth";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
 import { auth } from "../firebase/client";
-import { createMockup } from "../redux/slices/mockupReducer";
+import { createMockup, Mockup } from "../redux/slices/mockupReducer";
 import { RootState } from "../redux/store";
 import Button from "./Buttons/Button";
 import DropzoneField, { UploadedFile } from "./DropzoneField";
@@ -14,10 +15,10 @@ interface Props {}
 const CreateMockup = ({}: Props) => {
   const [isTransparent, setIsTransparent] = useState(false);
   const [user, userLoading] = useAuthState(auth);
-  const userIsPremium = usePremiumStatus(user);
+  const userIsPremium = usePremiumStatus(user as User);
   const dispatch = useDispatch();
 
-  const posts = useSelector((state) => state.posts);
+  const posts = useSelector((state: RootState) => state.posts);
   const [canvaIsRendered, setCanvaIsRendered] = useState<boolean>(false);
   const [canvaIsLoading, setCanvaIsLoading] = useState<boolean>(false);
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
@@ -32,7 +33,7 @@ const CreateMockup = ({}: Props) => {
     console.log("handle download");
 
     const canvas = document.getElementById("mock-canvas") as HTMLCanvasElement;
-    const ctx = canvas?.getContext("2d");
+    const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D; // TODO
 
     const phoneImg = document.querySelector("#phone") as HTMLImageElement;
     const phoneIntrinsicW = phoneImg.naturalWidth;
@@ -68,7 +69,8 @@ const CreateMockup = ({}: Props) => {
       link.download = name;
 
       link.href = url;
-      dispatch(createMockup({ name, url }));
+      const mockup: Mockup = { id: "xxx", name, url };
+      dispatch(createMockup(mockup as any) as any); // TODO
 
       setDownloadLink(link);
       setCanvaIsLoading(false);

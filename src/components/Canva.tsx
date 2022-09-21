@@ -5,9 +5,11 @@ interface Props {}
 const Canva = ({}: Props) => {
   useEffect(() => {
     // create 2 canvas
-    const phoneCanva = document.querySelector("#phoneCanva");
-    const phoneCtx = phoneCanva?.getContext("2d");
-    const phoneImg = document.querySelector("#phone");
+    const phoneCanva = document.querySelector(
+      "#phoneCanva"
+    ) as HTMLCanvasElement;
+    const phoneCtx = phoneCanva?.getContext("2d") as CanvasRenderingContext2D;
+    const phoneImg = document.querySelector("#phone") as HTMLImageElement;
     const phoneWidth = phoneImg?.width;
     const phoneHeight = phoneImg?.height;
     phoneCanva.width = phoneWidth; // set canva width the same as image
@@ -15,21 +17,21 @@ const Canva = ({}: Props) => {
     // phoneCtx.clip();
     phoneCtx.drawImage(phoneImg, 0, 0, phoneWidth, phoneHeight);
 
-    const ssCanva = document.querySelector("#ssCanva");
-    const ssCtx = ssCanva?.getContext("2d");
-    const ssImg = document.createElement("img");
+    const ssCanva = document.querySelector("#ssCanva") as HTMLCanvasElement;
+    const ssCtx = ssCanva?.getContext("2d") as CanvasRenderingContext2D;
+    const ssImg = document.createElement("img") as HTMLImageElement;
     const ssWidth = 120;
     const ssHeight = 200;
-    ssImg.style.width = ssWidth;
+    ssImg.style.width = ssWidth.toString();
     ssImg.style.borderRadius = "20em";
     ssImg.style.borderCollapse = "separate";
-    ssImg.style.WebkitBorderRadius = "20em";
-    ssImg.style.perspective = 1;
+    ssImg.style.webkitBorderRadius = "20em";
+    ssImg.style.perspective = "1";
     ssImg.style.overflow = "hidden";
-    ssImg.style.MozBorderRadius = "20em";
+    // ssImg.style.MozBorderRadius = "20em";
     ssImg.style.borderImage = "";
 
-    ssImg.style.height = ssHeight;
+    ssImg.style.height = ssHeight.toString();
 
     ssImg.onload = function () {
       ssCtx.drawImage(ssImg, 20, 10, ssWidth, ssHeight);

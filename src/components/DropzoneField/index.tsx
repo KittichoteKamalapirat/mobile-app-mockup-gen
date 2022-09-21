@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useDropzone } from "react-dropzone";
+import { Accept, useDropzone } from "react-dropzone";
 import FormFieldLabel from "../FormFieldLabel";
 import FormHelperText from "../FormHelperText";
 import FileUploader from "./FileUploads";
@@ -83,7 +83,7 @@ const DropzoneField = ({
     isDragReject,
     fileRejections,
   } = useDropzone({
-    accept: acceptedFileTypes,
+    accept: acceptedFileTypes as any, // TODO
     maxFiles: maxFiles,
     multiple: isMultiple,
     maxSize: maxSize,

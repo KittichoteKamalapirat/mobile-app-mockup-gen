@@ -1,7 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import {
-  addDoc,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+import {
   collection,
   doc,
   getDocs,
@@ -21,7 +25,6 @@ const firebaseConfig = {
   appId: "1:563364205858:web:84f54ce28a48074b79417b",
   measurementId: "G-PDP8C16NPX",
 };
-import { signOut } from "firebase/auth";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -77,7 +80,7 @@ export const openCustomerPortal = async () => {
 
   console.log("data in portal", data);
 
-  window.location.assign(data?.url);
+  window.location.assign((data as any)?.url); // todo
 };
 
 export const fetchSubscription = async (uid: string) => {

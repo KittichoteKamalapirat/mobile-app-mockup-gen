@@ -1,6 +1,6 @@
 import React from "react";
 import Layout from "../src/components/layouts/Layout";
-import Pricing from "../src/components/pricing";
+import Pricing from "../src/components/Pricing";
 
 interface Props {}
 

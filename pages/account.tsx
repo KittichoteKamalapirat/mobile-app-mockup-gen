@@ -1,3 +1,4 @@
+import { User } from "firebase/auth";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -17,14 +18,14 @@ interface Props {}
 const Account = ({}: Props) => {
   const [user, userLoading] = useAuthState(auth);
   console.log("user", user);
-  const userIsPremium = usePremiumStatus(user);
+  const userIsPremium = usePremiumStatus(user as User); // TODO
 
   const [subs, setSubs] = useState<any>();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const subs = await fetchSubscription(user?.uid);
+        const subs = await fetchSubscription(user?.uid as string); // TODO
         console.log({ subs });
         setSubs(subs);
       } catch (error) {
