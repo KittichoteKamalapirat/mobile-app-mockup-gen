@@ -1,16 +1,18 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useCallback, useRef, useState } from "react";
 import { HexColorPicker, RgbaStringColorPicker } from "react-colorful";
 import { BiArrowBack } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { Euler } from "three";
 import { proxy, useSnapshot } from "valtio";
+import useClickOutside from "../functions/src/hooks/useClickOutside";
 import IPhone from "../src/components/3d/IPhone";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
 import LinkButton from "../src/components/Buttons/LinkButton";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
+import Toggle from "../src/components/Toggle";
 import { RootState } from "../src/redux/store";
 
 interface Props {}
@@ -67,13 +69,18 @@ const ThreeDimension = ({}: Props) => {
   const [canvaColor, setCanvaColor] = useState("#aabbcc");
 
   const snap = useSnapshot(state);
+  const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
+
+  const close = useCallback(() => setColorPickerIsOpen(false), []);
 
   console.log("snap", snap);
 
+  const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
   console.log("canvaRef", canvaRef);
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
 
+  useClickOutside(colorPickerRef, close);
   // create img from canvas
   const handleDownload = () => {
     console.log("canvaRef", canvaRef);
@@ -214,8 +221,17 @@ const ThreeDimension = ({}: Props) => {
       >
         Upload an image
       </DropzoneField>
-      <HexColorPicker color={canvaColor} onChange={setCanvaColor} />
-      <RgbaStringColorPicker color={canvaColor} onChange={setCanvaColor} />
+
+      {colorPickerIsOpen && (
+        <div ref={colorPickerRef}>
+          <RgbaStringColorPicker color={canvaColor} onChange={setCanvaColor} />
+        </div>
+      )}
+
+      <div
+        style={{ backgroundColor: canvaColor, width: 30, height: 30 }}
+        onClick={() => setColorPickerIsOpen(true)}
+      />
 
       <Button
         label="reset rotation"
