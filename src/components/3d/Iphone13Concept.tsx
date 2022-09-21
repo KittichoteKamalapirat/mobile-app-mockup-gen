@@ -93,15 +93,18 @@ const Iphone13Concept = ({ upload }: Props) => {
   return (
     <group dispose={null}>
       {/* x z y */}
-      {/* <group position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, Math.PI]}>
-        // <group rotation={[0, 0, 0]} scale={0.01}>
-          <group rotation={[-Math.PI / 2, 0, Math.PI]} scale={80}> */}
 
-      <group rotation={[Math.PI / 2, Math.PI, 0]} scale={0.8}>
+      <group
+        position={[0, 0.5, 0]}
+        rotation={[-Math.PI / 2, 0, Math.PI - 0.5]}
+        scale={0.7}
+      >
+        {/* <group position={[0, 0, -0.01]} rotation={[0, 0, 0]}>
+        <group rotation={[0, 0, 0]} scale={0.01}>
+          <group rotation={[-Math.PI / 2, 0, Math.PI]} scale={80}> */}
         <mesh
           geometry={nodes.BackCover_Blue_0.geometry}
           material={materials.Blue}
-          position={[0, 0.1, 0]}
         />
         {/* wall paper */}
         <mesh

@@ -1,12 +1,11 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useRef, useState } from "react";
-import { HexColorPicker } from "react-colorful";
+import { HexColorPicker, RgbaStringColorPicker } from "react-colorful";
 import { BiArrowBack } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { Euler } from "three";
 import { proxy, useSnapshot } from "valtio";
-import Cube from "../src/components/3d/Cube";
 import IPhone from "../src/components/3d/IPhone";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
@@ -42,7 +41,8 @@ const PhoneScene = () => {
       <spotLight intensity={0.3} position={[5, 20, 20]} />
       <directionalLight position={[-2, 5, 2]} intensity={1} />
       <Suspense fallback={null}>
-        <Cube />
+        <IPhone upload={upload} />
+        {/* <Environment files="/threejs/royal_esplanade_1k.hdr" /> */}
 
         <ContactShadows
           position={[1, -2, 0]}
@@ -95,29 +95,24 @@ const ThreeDimension = ({}: Props) => {
 
   return (
     <div className="h-screen relative ">
-      <Canvas
-        className="h-screen"
-        camera={{
-          position: [0, 0, 25], //x,y,z?
-          rotation: [0, 0, -Math.PI / 2], //x,y,z?
-
-          fov: 15,
-        }} //
-      >
+      {/* <Canvas className="h-screen">
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[-2, 5, 2]} intensity={1} />
         <Suspense fallback={null}>
           <Cube />
+          <Environment files="/threejs/royal_esplanade_1k.hdr" />
           <ContactShadows
-            // rotation-x={-Math.PI}
-            position={[0, -0.8, 0]}
+            // rotation-x={Math.PI / 2}
+            // position={[0, 0, 0]}
             opacity={0.9}
+            width={10}
+            height={10}
             blur={2}
             far={0.1}
           />
         </Suspense>
-      </Canvas>
+      </Canvas> */}
 
       <LinkButton
         label="Back Home"
@@ -151,42 +146,63 @@ const ThreeDimension = ({}: Props) => {
         </Suspense>
       </Canvas> */}
 
-      {/* <Canvas
-        style={{ height: "100vh", backgroundColor: canvaColor }}
+      <Canvas
+        style={{
+          height: "100vh",
+          backgroundColor: canvaColor,
+        }}
         gl={{ preserveDrawingBuffer: true }}
         camera={{
           position: [0, 0, 25], //x,y,z?
           fov: 15,
         }} // x z y
-        shadows={true}
       >
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />
-        <spotLight intensity={0.9} position={[0, 20, 5]} />
+        <spotLight intensity={0.3} position={[5, 0, -10]} />
         <directionalLight
-          position={[0, 20, 5]} //x,y,z
+          position={[-2, 5, 2]} //x,y,z
           intensity={1}
         />
         <Suspense fallback={null}>
           <Iphone13Concept upload={upload} />
 
+          {/* Floor */}
+          <group position={[0, 0, 0]}>
+            {/* <ContactShadows
+              // position={[0, -0.8, 0]} // x z y
+              // rotation-x={Math.PI / 2}
+              position={[0, -0.8, 0]} // x z y
+              opacity={1}
+              scale={10} // more => kinda more gradient and blue
+              blur={3}
+              far={0.8} // darkness: more => darker
+              // width={10}
+              // height={10}
+            />
+            <ContactShadows
+              position={[0, -1, 0]}
+              opacity={1}
+              scale={10}
+              blur={3}
+            />
 
-          <ContactShadows
-            // position={[0, -0.8, 0]} // x z y
-            position={[0, 0.8, 0]} // x y z?
-            rotation-y={-Math.PI}
-            // opacity={1}
-            // scale={10} // more => kinda more gradient and blur
+            <ContactShadows
+              position={[0, -2, 0]}
+              opacity={1}
+              scale={10}
+              blur={3}
+            /> */}
 
-            // blur={1}
-            // far={0.8} // darkness: more => darker
-            // width={10}
-            // height={10}
-            // resolution={256}
-            // color="#000000"
-          />
+            <ContactShadows
+              position={[0, -2.5, 0]}
+              opacity={1}
+              scale={10}
+              blur={6}
+            />
+          </group>
         </Suspense>
-      </Canvas> */}
+      </Canvas>
 
       <DropzoneField
         ariaLabel="Image"
@@ -199,6 +215,7 @@ const ThreeDimension = ({}: Props) => {
         Upload an image
       </DropzoneField>
       <HexColorPicker color={canvaColor} onChange={setCanvaColor} />
+      <RgbaStringColorPicker color={canvaColor} onChange={setCanvaColor} />
 
       <Button
         label="reset rotation"
