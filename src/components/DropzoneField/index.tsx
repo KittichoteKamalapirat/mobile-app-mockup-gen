@@ -54,6 +54,7 @@ interface Props {
   setFileUploads: (files: UploadedFile[]) => void;
   inputClass?: string;
   showConfirmationOnDelete: boolean;
+  isDroppable?: boolean;
 }
 
 const DropzoneField = ({
@@ -73,6 +74,7 @@ const DropzoneField = ({
   inputClass,
   setFileUploads,
   showConfirmationOnDelete,
+  isDroppable = true,
 }: Props) => {
   const isMultiple = maxFiles !== 1;
   const {
@@ -105,7 +107,7 @@ const DropzoneField = ({
 
   const style = useMemo(
     () => ({
-      ...baseStyle,
+      ...(isDroppable && baseStyle),
       ...(isFocused ? focusedStyle : {}),
       ...(!!inputError || !!uploadError ? rejectStyle : {}),
     }),

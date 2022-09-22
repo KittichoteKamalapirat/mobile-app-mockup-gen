@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useCallback, useRef, useState } from "react";
@@ -70,10 +71,13 @@ const ThreeDimension = ({}: Props) => {
 
   const snap = useSnapshot(state);
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
+  const [shadowIsOn, setShadowIsOn] = useState(true);
 
   const close = useCallback(() => setColorPickerIsOpen(false), []);
 
   console.log("snap", snap);
+
+  const toggleShadow = () => setShadowIsOn(!shadowIsOn);
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
@@ -82,11 +86,15 @@ const ThreeDimension = ({}: Props) => {
 
   useClickOutside(colorPickerRef, close);
   // create img from canvas
+
   const handleDownload = () => {
     console.log("canvaRef", canvaRef);
 
     const canvas = canvaRef.current as HTMLCanvasElement;
-    console.log("2");
+
+    const ctx = canvas.getContext("webgl");
+
+    console.log("canvas", canvas);
 
     const url = canvas.toDataURL("image/png");
     const name = upload.name;
@@ -121,13 +129,13 @@ const ThreeDimension = ({}: Props) => {
         </Suspense>
       </Canvas> */}
 
-      <LinkButton
+      {/* <LinkButton
         label="Back Home"
         href="/"
         type={ButtonTypes.TEXT}
         leftIcon={<BiArrowBack size={20} />}
         extraClass="z-10 absolute top-0 left-0 mt-4 ml-4"
-      />
+      /> */}
 
       {/* <Canvas
         style={{ height: "100vh", backgroundColor: canvaColor }}
@@ -158,6 +166,7 @@ const ThreeDimension = ({}: Props) => {
           height: "100vh",
           backgroundColor: canvaColor,
         }}
+        ref={canvaRef}
         gl={{ preserveDrawingBuffer: true }}
         camera={{
           position: [0, 0, 25], //x,y,z?
@@ -201,47 +210,79 @@ const ThreeDimension = ({}: Props) => {
               blur={3}
             /> */}
 
-            <ContactShadows
-              position={[0, -2.5, 0]}
-              opacity={1}
-              scale={10}
-              blur={6}
-            />
+            {shadowIsOn && (
+              <ContactShadows
+                position={[0, -1.66, 0]}
+                opacity={1}
+                scale={10}
+                blur={4}
+              />
+            )}
           </group>
         </Suspense>
       </Canvas>
 
-      <DropzoneField
-        ariaLabel="Image"
-        inputClass="w-60 h-60"
-        maxFiles={1}
-        fileUploads={fileUploads}
-        setFileUploads={setFileUploads}
-        showConfirmationOnDelete={false}
-      >
-        Upload an image
-      </DropzoneField>
-
-      {colorPickerIsOpen && (
-        <div ref={colorPickerRef}>
-          <RgbaStringColorPicker color={canvaColor} onChange={setCanvaColor} />
-        </div>
-      )}
-
       <div
-        style={{ backgroundColor: canvaColor, width: 30, height: 30 }}
-        onClick={() => setColorPickerIsOpen(true)}
-      />
+        id="menu"
+        className="flex-col p-2 absolute top-1/4 bg-grey-0 shadow-xl"
+      >
+        <DropzoneField
+          ariaLabel="Image"
+          inputClass="my-2"
+          maxFiles={1}
+          fileUploads={fileUploads}
+          setFileUploads={setFileUploads}
+          showConfirmationOnDelete={false}
+          isDroppable={false}
+        >
+          <Button label="Upload" />
+        </DropzoneField>
 
-      <Button
-        label="reset rotation"
-        onClick={() => {
-          state.rotation = new Euler(-Math.PI / 2, 0, Math.PI);
-        }}
-      />
-      <button onClick={() => ++state.count}>{snap.count}</button>
+        {upload.presignedUrl && (
+          <img
+            id="phone"
+            src={upload.presignedUrl}
+            alt="iphone mockup"
+            className="w-10 h-10"
+          />
+        )}
 
-      <Button label="Download" onClick={handleDownload} />
+        {colorPickerIsOpen && (
+          <div ref={colorPickerRef} className="my-2">
+            <RgbaStringColorPicker
+              color={canvaColor}
+              onChange={setCanvaColor}
+            />
+          </div>
+        )}
+
+        <div
+          style={{
+            backgroundClip: "content-box",
+            backgroundColor: canvaColor,
+            borderWidth: "1px",
+          }}
+          className="w-10 h-10 p-1 m-2  border-grey-300 border-solid rounded-sm bg-green box-content"
+          onClick={() => setColorPickerIsOpen(true)}
+        />
+
+        {/* <div>
+          <Button
+            label="reset rotation"
+            onClick={() => {
+              state.rotation = new Euler(-Math.PI / 2, 0, Math.PI);
+            }}
+          />
+        </div> */}
+
+        <div className="my-2">
+          <Button label="Shadow" onClick={toggleShadow} />
+        </div>
+
+        <div>
+          <Button label="Download" onClick={handleDownload} />
+        </div>
+      </div>
     </div>
   );
 };
