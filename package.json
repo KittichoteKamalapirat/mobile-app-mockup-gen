@@ -37,6 +37,7 @@
     "react-icons": "^4.4.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
+    "rgba-to-rgb": "^1.0.2",
     "stripe": "^10.8.0",
     "three": "^0.144.0",
     "uuid": "^9.0.0",

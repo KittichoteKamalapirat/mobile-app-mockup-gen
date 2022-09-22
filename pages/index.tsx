@@ -1,27 +1,26 @@
+import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
-import { ContactShadows, OrbitControls } from "@react-three/drei";
+import { ContactShadows, OrbitControls, useTexture } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense, useCallback, useRef, useState } from "react";
-import { HexColorPicker, RgbaStringColorPicker } from "react-colorful";
-import { BiArrowBack } from "react-icons/bi";
+import { RgbaStringColorPicker } from "react-colorful";
 import { useSelector } from "react-redux";
-import { Euler } from "three";
+import { Euler, Texture, WebGLCubeRenderTarget } from "three";
 import { proxy, useSnapshot } from "valtio";
 import useClickOutside from "../functions/src/hooks/useClickOutside";
+import { rgbaToHex } from "../functions/src/utils/rgbaToHex";
 import IPhone from "../src/components/3d/IPhone";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
-import Button, { ButtonTypes } from "../src/components/Buttons/Button";
-import LinkButton from "../src/components/Buttons/LinkButton";
+import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
-import Toggle from "../src/components/Toggle";
 import { RootState } from "../src/redux/store";
 
 interface Props {}
 
+const RGB_WHITE_BG = "rgb(255, 255, 255)";
+
 const PhoneScene = () => {
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
-
-  const gl = useThree((state) => state.gl);
 
   // useControls({
   //   screenshot: button(() => {
@@ -67,17 +66,19 @@ export const state = proxy({
 
 const ThreeDimension = ({}: Props) => {
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
-  const [canvaColor, setCanvaColor] = useState("#aabbcc");
+  const [canvaColor, setCanvaColor] = useState("rgba(255,255,255,1)");
 
   const snap = useSnapshot(state);
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
   const [shadowIsOn, setShadowIsOn] = useState(true);
+  const [bgIsTransparent, setBgIsTransparent] = useState(false);
 
   const close = useCallback(() => setColorPickerIsOpen(false), []);
 
   console.log("snap", snap);
 
   const toggleShadow = () => setShadowIsOn(!shadowIsOn);
+  const toggleTransparentBg = () => setBgIsTransparent(!bgIsTransparent);
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
@@ -92,12 +93,17 @@ const ThreeDimension = ({}: Props) => {
 
     const canvas = canvaRef.current as HTMLCanvasElement;
 
-    const ctx = canvas.getContext("webgl");
-
     console.log("canvas", canvas);
+
+    // const ctx = canvas.getContext("2d");
+    // console.log("ctx", ctx);
 
     const url = canvas.toDataURL("image/png");
     const name = upload.name;
+
+    // create the phone image
+    // const ssImg = new Image();
+    // ssImg.src = upload.presignedUrl;
 
     console.log("4");
     const link = document.createElement("a");
@@ -107,6 +113,13 @@ const ThreeDimension = ({}: Props) => {
 
     console.log("5");
   };
+
+  const canvaHexColor = rgbaToHex(canvaColor);
+
+  console.log("color", typeof canvaColor);
+  console.log("canvaco", canvaColor);
+
+  const rgb = rgbaToRgb(RGB_WHITE_BG, canvaColor);
 
   return (
     <div className="h-screen relative ">
@@ -164,7 +177,7 @@ const ThreeDimension = ({}: Props) => {
       <Canvas
         style={{
           height: "100vh",
-          backgroundColor: canvaColor,
+          zIndex: 1,
         }}
         ref={canvaRef}
         gl={{ preserveDrawingBuffer: true }}
@@ -173,6 +186,7 @@ const ThreeDimension = ({}: Props) => {
           fov: 15,
         }} // x z y
       >
+        {!bgIsTransparent && <color attach="background" args={[rgb]} />}
         <OrbitControls enableZoom={false} />
         <ambientLight intensity={0.5} />
         <spotLight intensity={0.3} position={[5, 0, -10]} />
@@ -224,7 +238,7 @@ const ThreeDimension = ({}: Props) => {
 
       <div
         id="menu"
-        className="flex-col p-2 absolute top-1/4 bg-grey-0 shadow-xl"
+        className="flex-col p-2 absolute top-1/4 bg-grey-0 shadow-xl z-10"
       >
         <DropzoneField
           ariaLabel="Image"
@@ -276,6 +290,9 @@ const ThreeDimension = ({}: Props) => {
         </div> */}
 
         <div className="my-2">
+          <Button label="Transparent" onClick={toggleTransparentBg} />
+        </div>
+        <div className="my-2">
           <Button label="Shadow" onClick={toggleShadow} />
         </div>
 
@@ -283,8 +300,25 @@ const ThreeDimension = ({}: Props) => {
           <Button label="Download" onClick={handleDownload} />
         </div>
       </div>
+
+      <img
+        id="transparent-bg"
+        src="/images/transparent-background.png"
+        alt="transparent bg"
+        className="h-screen w-screen absolute top-0 z-0 "
+      />
     </div>
   );
 };
+
+// const Background = () => {
+//   const { gl } = useThree();
+
+//   const texture = useTexture(transparentBg.src);
+//   const formatted = new WebGLCubeRenderTarget(
+//     texture.image.height
+//   ).fromEquirectangularTexture(gl, texture);
+//   return <primitive attach="background" object={formatted.texture} />;
+// };
 
 export default ThreeDimension;
