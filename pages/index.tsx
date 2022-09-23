@@ -1,3 +1,10 @@
+import { MdOutlineCenterFocusStrong } from "react-icons/md";
+import { HiOutlineDeviceMobile } from "react-icons/hi";
+import { GiStripedSun } from "react-icons/gi";
+import { TbRotate360, TbRotate } from "react-icons/tb";
+
+import { IoMdDownload } from "react-icons/io";
+
 import gsap from "gsap";
 import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
@@ -13,6 +20,9 @@ import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import { RootState } from "../src/redux/store";
+import DiagonalLine from "../src/components/DiagonalLine";
+import { primaryColor } from "../theme";
+import Range from "../src/components/Range";
 
 interface Props {}
 
@@ -108,6 +118,10 @@ const ThreeDimension = ({}: Props) => {
     link.click();
   };
 
+  console.log("snap", snap.objectRotationX);
+  console.log("snap", snap.objectRotationY);
+  console.log("snap", snap.objectRotationZ);
+
   return (
     <div className="h-screen relative ">
       <Canvas
@@ -167,15 +181,110 @@ const ThreeDimension = ({}: Props) => {
           </div>
         )}
 
+        <hr className="border-1 border-grey-100 border-solid" />
         <div
           style={{
             backgroundClip: "content-box",
             backgroundColor: snap.canvaColor,
             borderWidth: "1px",
           }}
-          className="w-10 h-10 p-1 m-2  border-grey-300 border-solid rounded-sm bg-green box-content"
+          className="w-10 h-10 my-2 border-grey-200 border-solid rounded-full bg-green box-content"
           onClick={() => setColorPickerIsOpen(true)}
         />
+
+        <DiagonalLine />
+
+        <div className="my-2">
+          <Button label="Transparent" onClick={toggleTransparentBg} />
+        </div>
+
+        <hr className="border-1 border-grey-100 border-solid" />
+
+        <div
+          className="flex-col items-center cursor-pointer"
+          onClick={() => {
+            state.objectRotationX = -Math.PI / 2;
+            state.objectRotationY = 0;
+            state.objectRotationZ = Math.PI;
+          }}
+        >
+          <HiOutlineDeviceMobile
+            size={40} // px
+            color={primaryColor}
+          />
+
+          <p className="text-primary">Center Phone</p>
+        </div>
+
+        <div
+          className="flex-col items-center cursor-pointer"
+          onClick={() => {
+            const camera = snap.camera;
+            if (camera) {
+              handleCameraRotation(camera);
+            }
+          }}
+        >
+          <MdOutlineCenterFocusStrong
+            size={40} // px
+            color={primaryColor}
+          />
+
+          <p className="text-primary">Center Camera</p>
+        </div>
+
+        <Range
+          label={
+            <TbRotate360
+              size={40} // px
+              color={primaryColor}
+              className="-rotate-45"
+            />
+          }
+          value={snap.objectRotationX}
+          onChange={(e) => (state.objectRotationX = e.target.value)}
+          onInput={(e) => (state.objectRotationX = e.target.value)}
+          min={0}
+          max={Math.PI * 2}
+        />
+        <Range
+          label={
+            <TbRotate360
+              size={40} // px
+              color={primaryColor}
+              className="rotate-45"
+            />
+          }
+          value={snap.objectRotationY}
+          onChange={(e) => (state.objectRotationY = e.target.value)}
+          onInput={(e) => (state.objectRotationY = e.target.value)}
+          min={0}
+          max={Math.PI * 2}
+        />
+        <Range
+          label={
+            <TbRotate
+              size={40} // px
+              color={primaryColor}
+            />
+          }
+          value={snap.objectRotationZ}
+          onChange={(e) => (state.objectRotationZ = e.target.value)}
+          onInput={(e) => (state.objectRotationZ = e.target.value)}
+          min={0}
+          max={Math.PI * 2}
+        />
+        <div
+          className="flex-col items-center cursor-pointer"
+          onClick={toggleShadow}
+        >
+          <GiStripedSun
+            size={40} // px
+            color={primaryColor}
+          />
+
+          <p className="text-primary">Shadow</p>
+        </div>
 
         <div>
           <Button
@@ -297,14 +406,23 @@ const ThreeDimension = ({}: Props) => {
         </div>
 
         <div className="my-2">
-          <Button label="Transparent" onClick={toggleTransparentBg} />
-        </div>
-        <div className="my-2">
           <Button label="Shadow" onClick={toggleShadow} />
         </div>
 
         <div>
           <Button label="Download" onClick={handleDownload} />
+
+          <div
+            className="flex-col items-center cursor-pointer"
+            onClick={handleDownload}
+          >
+            <IoMdDownload
+              size={40} // px
+              color={primaryColor}
+            />
+
+            <p className="text-primary">Download</p>
+          </div>
         </div>
       </div>
 
