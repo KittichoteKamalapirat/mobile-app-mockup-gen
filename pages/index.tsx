@@ -1,3 +1,4 @@
+import { useSpring, animated, config } from "@react-spring/three";
 import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
 import { ContactShadows, OrbitControls, useTexture } from "@react-three/drei";
@@ -42,7 +43,7 @@ const PhoneScene = () => {
       <ambientLight intensity={0.5} />
       <spotLight intensity={0.3} position={[5, 20, 20]} />
       <directionalLight position={[-2, 5, 2]} intensity={1} />
-      <Suspense fallback={null}>
+      <animated.Suspense fallback={null}>
         <IPhone upload={upload} />
         {/* <Environment files="/threejs/royal_esplanade_1k.hdr" /> */}
 
@@ -53,15 +54,22 @@ const PhoneScene = () => {
           blur={1}
           far={0.8}
         />
-      </Suspense>
+      </animated.Suspense>
     </>
   );
 };
 
-export const DEFAULT_ROTATION = new Euler(-Math.PI / 2, 0, Math.PI);
+export const CAMERA_DEFAULT_ROTATION = [0, 0, 0];
+export const OBJECT_DEFAULT_ROTATION = [-Math.PI / 2, 0, Math.PI];
+
 export const state = proxy({
-  rotation: DEFAULT_ROTATION,
-  count: 0,
+  cameraRotationX: 0,
+  cameraRotationY: 0,
+  cameraRotationZ: 25,
+
+  objectRotationX: -Math.PI / 2,
+  objectRotationY: 0,
+  objectRotationZ: Math.PI,
 });
 
 const ThreeDimension = ({}: Props) => {
@@ -69,31 +77,34 @@ const ThreeDimension = ({}: Props) => {
   const [canvaColor, setCanvaColor] = useState("rgba(255,255,255,1)");
 
   const snap = useSnapshot(state);
+
+  console.log(
+    "--------",
+    snap.cameraRotationX,
+    snap.cameraRotationY,
+    snap.cameraRotationZ
+  );
+
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
   const [shadowIsOn, setShadowIsOn] = useState(true);
   const [bgIsTransparent, setBgIsTransparent] = useState(false);
 
   const close = useCallback(() => setColorPickerIsOpen(false), []);
 
-  console.log("snap", snap);
-
   const toggleShadow = () => setShadowIsOn(!shadowIsOn);
   const toggleTransparentBg = () => setBgIsTransparent(!bgIsTransparent);
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
-  console.log("canvaRef", canvaRef);
+
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
 
   useClickOutside(colorPickerRef, close);
+
   // create img from canvas
 
   const handleDownload = () => {
-    console.log("canvaRef", canvaRef);
-
     const canvas = canvaRef.current as HTMLCanvasElement;
-
-    console.log("canvas", canvas);
 
     // const ctx = canvas.getContext("2d");
     // console.log("ctx", ctx);
@@ -105,21 +116,15 @@ const ThreeDimension = ({}: Props) => {
     // const ssImg = new Image();
     // ssImg.src = upload.presignedUrl;
 
-    console.log("4");
     const link = document.createElement("a");
     link.download = name;
     link.href = url;
     link.click();
-
-    console.log("5");
   };
 
-  const canvaHexColor = rgbaToHex(canvaColor);
-
-  console.log("color", typeof canvaColor);
-  console.log("canvaco", canvaColor);
-
   const rgb = rgbaToRgb(RGB_WHITE_BG, canvaColor);
+
+  console.log("canvaRef", canvaRef);
 
   return (
     <div className="h-screen relative ">
@@ -182,7 +187,13 @@ const ThreeDimension = ({}: Props) => {
         ref={canvaRef}
         gl={{ preserveDrawingBuffer: true }}
         camera={{
-          position: [0, 0, 25], //x,y,z?
+          // position: [0, 0, 25], //x,y,z?
+
+          position: [
+            snap.cameraRotationX,
+            snap.cameraRotationY,
+            snap.cameraRotationZ,
+          ], //x,y,z?
           fov: 15,
         }} // x z y
       >
@@ -280,14 +291,121 @@ const ThreeDimension = ({}: Props) => {
           onClick={() => setColorPickerIsOpen(true)}
         />
 
-        {/* <div>
+        <div>
           <Button
-            label="reset rotation"
+            label="reset camera rotation"
             onClick={() => {
-              state.rotation = new Euler(-Math.PI / 2, 0, Math.PI);
+              state.cameraRotationIsReset = !state.cameraRotationIsReset;
             }}
           />
-        </div> */}
+        </div>
+
+        <div>
+          <Button
+            label="reset object rotation"
+            onClick={() => {
+              state.objectRotationX = -Math.PI / 2;
+              state.objectRotationY = 0;
+              state.objectRotationZ = Math.PI;
+            }}
+          />
+        </div>
+
+        <div>
+          <div>
+            <Button
+              label="x++"
+              onClick={() => {
+                state.objectRotationX = state.objectRotationX + 1;
+              }}
+            />
+            <Button
+              label="x--"
+              onClick={() => {
+                state.objectRotationX = state.objectRotationX - 1;
+              }}
+            />
+          </div>
+
+          <div>
+            <Button
+              label="y++"
+              onClick={() => {
+                state.objectRotationY = state.objectRotationY + 1;
+              }}
+            />
+
+            <Button
+              label="y--"
+              onClick={() => {
+                state.objectRotationY = state.objectRotationY - 1;
+              }}
+            />
+          </div>
+
+          <div>
+            <Button
+              label="z++"
+              onClick={() => {
+                state.objectRotationZ = state.objectRotationZ + 1;
+              }}
+            />
+            <Button
+              label="z--"
+              onClick={() => {
+                state.objectRotationZ = state.objectRotationZ - 1;
+              }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <div>
+            <Button
+              label="cam x++"
+              onClick={() => {
+                state.cameraRotationX = state.cameraRotationX + 1;
+              }}
+            />
+            <Button
+              label="x--"
+              onClick={() => {
+                state.cameraRotationX = state.cameraRotationX - 1;
+              }}
+            />
+          </div>
+
+          <div>
+            <Button
+              label="y++"
+              onClick={() => {
+                state.cameraRotationY = state.cameraRotationY + 1;
+              }}
+            />
+
+            <Button
+              label="y--"
+              onClick={() => {
+                state.cameraRotationY = state.cameraRotationY - 1;
+              }}
+            />
+          </div>
+
+          <div>
+            <Button
+              label="z++"
+              onClick={() => {
+                state.cameraRotationZ = state.cameraRotationZ + 1;
+              }}
+            />
+            <Button
+              label="z--"
+              onClick={() => {
+                state.cameraRotationZ = state.cameraRotationZ - 1;
+              }}
+            />
+          </div>
+        </div>
 
         <div className="my-2">
           <Button label="Transparent" onClick={toggleTransparentBg} />

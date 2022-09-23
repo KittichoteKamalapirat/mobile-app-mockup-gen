@@ -12,6 +12,7 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "@react-spring/three": "^9.5.4",
     "@react-three/drei": "^9.31.1",
     "@react-three/fiber": "^8.7.4",
     "@reduxjs/toolkit": "^1.8.5",
