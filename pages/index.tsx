@@ -1,3 +1,4 @@
+import gsap from "gsap";
 import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
 import { ContactShadows, OrbitControls } from "@react-three/drei";
@@ -84,7 +85,14 @@ const ThreeDimension = ({}: Props) => {
   useClickOutside(colorPickerRef, close);
 
   const handleCameraRotation = (camera: Camera) => {
-    camera.position.set(0, 0, 5);
+    // camera.position.set(0, 0, 5);
+
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 5,
+    });
   };
 
   // create img from canvas
@@ -138,7 +146,7 @@ const ThreeDimension = ({}: Props) => {
           showConfirmationOnDelete={false}
           isDroppable={false}
         >
-          <Button label="Upload" />
+          <Button label={upload.presignedUrl ? "Replace" : "Upload"} />
         </DropzoneField>
 
         {upload.presignedUrl && (
