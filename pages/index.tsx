@@ -1,24 +1,17 @@
 import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
 import { ContactShadows, OrbitControls } from "@react-three/drei";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  forwardRef,
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Canvas, useThree } from "@react-three/fiber";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
 import { useSelector } from "react-redux";
+import { Camera } from "three";
 import { proxy, useSnapshot } from "valtio";
 import useClickOutside from "../functions/src/hooks/useClickOutside";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import { RootState } from "../src/redux/store";
-import { Camera } from "three";
 
 interface Props {}
 
@@ -32,6 +25,11 @@ interface ProxyState {
   cameraRotationX: number;
   cameraRotationY: number;
   cameraRotationZ: number;
+
+  cameraPositionX: number;
+  cameraPositionY: number;
+  cameraPositionZ: number;
+
   shadowIsOn: boolean;
   bgIsTransparent: boolean;
   camera: null | Camera;
@@ -43,7 +41,12 @@ export const state: ProxyState = proxy({
   canvaColor: "rgba(255,255,255,1)",
   cameraRotationX: 0,
   cameraRotationY: 0,
-  cameraRotationZ: 25,
+  cameraRotationZ: 0,
+
+  cameraPositionX: 0,
+  cameraPositionY: 0,
+  cameraPositionZ: 5,
+
   shadowIsOn: true,
   bgIsTransparent: false,
   camera: null,
@@ -60,9 +63,9 @@ const ThreeDimension = ({}: Props) => {
 
   console.log(
     "--------",
-    snap.cameraRotationX,
-    snap.cameraRotationY,
-    snap.cameraRotationZ
+    snap.cameraPositionX,
+    snap.cameraPositionY,
+    snap.cameraPositionZ
   );
 
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
@@ -81,7 +84,7 @@ const ThreeDimension = ({}: Props) => {
   useClickOutside(colorPickerRef, close);
 
   const handleCameraRotation = (camera: Camera) => {
-    camera.position.set(0, 0, 4);
+    camera.position.set(0, 0, 5);
   };
 
   // create img from canvas
@@ -106,16 +109,18 @@ const ThreeDimension = ({}: Props) => {
           zIndex: 1,
         }}
         gl={{ preserveDrawingBuffer: true }}
-        // camera={{
-        //   // position: [0, 0, 25], //x,y,z?
-
-        //   position: [
-        //     snap.cameraRotationX,
-        //     snap.cameraRotationY,
-        //     snap.cameraRotationZ,
-        //   ], //x,y,z?
-        //   fov: 15,
-        // }} // x z y
+        camera={{
+          rotation: [
+            snap.cameraRotationX,
+            snap.cameraRotationY,
+            snap.cameraRotationZ,
+          ],
+          position: [
+            snap.cameraPositionX,
+            snap.cameraPositionY,
+            snap.cameraPositionZ,
+          ],
+        }}
       >
         <Scene upload={upload} />
       </Canvas>
@@ -330,6 +335,7 @@ const Scene = ({ upload }: SceneProps) => {
       <ambientLight intensity={0.5} />
 
       {camera && <cameraHelper args={[camera]} />}
+
       <spotLight intensity={0.3} position={[5, 0, -10]} />
       <directionalLight
         position={[-2, 5, 2]} //x,y,z
