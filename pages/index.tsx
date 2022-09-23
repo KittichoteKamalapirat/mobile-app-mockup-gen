@@ -17,7 +17,7 @@ import { Camera } from "three";
 import { proxy, useSnapshot } from "valtio";
 import useClickOutside from "../functions/src/hooks/useClickOutside";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
-import Button from "../src/components/Buttons/Button";
+import Button, { ButtonTypes } from "../src/components/Buttons/Button";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import { RootState } from "../src/redux/store";
 import DiagonalLine from "../src/components/DiagonalLine";
@@ -160,7 +160,12 @@ const ThreeDimension = ({}: Props) => {
           showConfirmationOnDelete={false}
           isDroppable={false}
         >
-          <Button label={upload.presignedUrl ? "Replace" : "Upload"} />
+          <Button
+            label={upload.presignedUrl ? "Replace" : "Upload"}
+            buttonType={
+              upload.presignedUrl ? ButtonTypes.OUTLINED : ButtonTypes.PRIMARY
+            }
+          />
         </DropzoneField>
 
         {upload.presignedUrl && (
@@ -181,7 +186,7 @@ const ThreeDimension = ({}: Props) => {
           </div>
         )}
 
-        <hr className="border-1 border-grey-100 border-solid" />
+        <hr className="border-1 border-grey-100 border-solid my-2" />
         <div
           style={{
             backgroundClip: "content-box",
@@ -192,13 +197,14 @@ const ThreeDimension = ({}: Props) => {
           onClick={() => setColorPickerIsOpen(true)}
         />
 
-        <DiagonalLine />
-
-        <div className="my-2">
-          <Button label="Transparent" onClick={toggleTransparentBg} />
+        <div
+          className="flex-col items-center cursor-pointer"
+          onClick={toggleTransparentBg}
+        >
+          <DiagonalLine />
         </div>
 
-        <hr className="border-1 border-grey-100 border-solid" />
+        <hr className="border-1 border-grey-100 border-solid my-2" />
 
         <div
           className="flex-col items-center cursor-pointer"
@@ -274,6 +280,9 @@ const ThreeDimension = ({}: Props) => {
           min={0}
           max={Math.PI * 2}
         />
+
+        <hr className="border-1 border-grey-100 border-solid my-2" />
+
         <div
           className="flex-col items-center cursor-pointer"
           onClick={toggleShadow}
@@ -286,143 +295,16 @@ const ThreeDimension = ({}: Props) => {
           <p className="text-primary">Shadow</p>
         </div>
 
-        <div>
-          <Button
-            label="reset camera rotation"
-            onClick={() => {
-              const camera = snap.camera;
-              if (camera) {
-                handleCameraRotation(camera);
-              }
-            }}
+        <div
+          className="flex-col items-center cursor-pointer"
+          onClick={handleDownload}
+        >
+          <IoMdDownload
+            size={40} // px
+            color={primaryColor}
           />
-        </div>
 
-        <div>
-          <Button
-            label="reset object rotation"
-            onClick={() => {
-              state.objectRotationX = -Math.PI / 2;
-              state.objectRotationY = 0;
-              state.objectRotationZ = Math.PI;
-            }}
-          />
-        </div>
-
-        <div>
-          <div>
-            <Button
-              label="x++"
-              onClick={() => {
-                state.objectRotationX = state.objectRotationX + 1;
-              }}
-            />
-            <Button
-              label="x--"
-              onClick={() => {
-                state.objectRotationX = state.objectRotationX - 1;
-              }}
-            />
-          </div>
-
-          <div>
-            <Button
-              label="y++"
-              onClick={() => {
-                state.objectRotationY = state.objectRotationY + 1;
-              }}
-            />
-
-            <Button
-              label="y--"
-              onClick={() => {
-                state.objectRotationY = state.objectRotationY - 1;
-              }}
-            />
-          </div>
-
-          <div>
-            <Button
-              label="z++"
-              onClick={() => {
-                state.objectRotationZ = state.objectRotationZ + 1;
-              }}
-            />
-            <Button
-              label="z--"
-              onClick={() => {
-                state.objectRotationZ = state.objectRotationZ - 1;
-              }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <div>
-            <Button
-              label="cam x++"
-              onClick={() => {
-                state.cameraRotationX = state.cameraRotationX + 1;
-              }}
-            />
-            <Button
-              label="x--"
-              onClick={() => {
-                state.cameraRotationX = state.cameraRotationX - 1;
-              }}
-            />
-          </div>
-
-          <div>
-            <Button
-              label="y++"
-              onClick={() => {
-                state.cameraRotationY = state.cameraRotationY + 1;
-              }}
-            />
-
-            <Button
-              label="y--"
-              onClick={() => {
-                state.cameraRotationY = state.cameraRotationY - 1;
-              }}
-            />
-          </div>
-
-          <div>
-            <Button
-              label="z++"
-              onClick={() => {
-                state.cameraRotationZ = state.cameraRotationZ + 1;
-              }}
-            />
-            <Button
-              label="z--"
-              onClick={() => {
-                state.cameraRotationZ = state.cameraRotationZ - 1;
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="my-2">
-          <Button label="Shadow" onClick={toggleShadow} />
-        </div>
-
-        <div>
-          <Button label="Download" onClick={handleDownload} />
-
-          <div
-            className="flex-col items-center cursor-pointer"
-            onClick={handleDownload}
-          >
-            <IoMdDownload
-              size={40} // px
-              color={primaryColor}
-            />
-
-            <p className="text-primary">Download</p>
-          </div>
+          <p className="text-primary">Download</p>
         </div>
       </div>
 
@@ -460,7 +342,7 @@ const Scene = ({ upload }: SceneProps) => {
       <OrbitControls enableZoom={true} enableRotate={true} />
       <ambientLight intensity={0.5} />
 
-      {camera && <cameraHelper args={[camera]} />}
+      {/* {camera && <cameraHelper args={[camera]} />} */}
 
       <spotLight intensity={0.3} position={[5, 0, -10]} />
       <directionalLight
