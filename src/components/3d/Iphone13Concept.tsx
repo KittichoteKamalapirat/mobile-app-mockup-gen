@@ -1,101 +1,27 @@
-import { useSpring, animated, config } from "@react-spring/three";
-import { Euler, Group, TextureLoader } from "three";
-import { useLoader, useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import React, { useEffect, useRef, useState } from "react";
+import { animated, config, useSpring } from "@react-spring/three";
 import { useGLTF } from "@react-three/drei";
-import { GLTF } from "three-stdlib";
-import placeholder from "../../../public/images/placeholder.png";
-import { UploadedFile } from "../DropzoneField";
+import { useLoader, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ClampToEdgeWrapping, Group, TextureLoader } from "three";
+
 import { useSnapshot } from "valtio";
 import { state } from "../../../pages";
+import placeholder from "../../../public/images/placeholder.png";
+import { PHONE_SCREEN_HEIGHT, PHONE_SCREEN_WIDTH } from "../../constants";
+import { Iphone13ConceptGLTFResult } from "../../types/Iphone13ConceptGLTFResult";
+import { UploadedFile } from "../DropzoneField";
 
 interface Props {
   upload: UploadedFile;
 }
 
-type GLTFResult = GLTF & {
-  nodes: {
-    BackCover_Blue_0: THREE.Mesh;
-    Screen_Screen_0: THREE.Mesh;
-    CameraModuleBlack_BlackGlossy_0: THREE.Mesh;
-    CameraModuleBlack_SpeakerAndMiic_0: THREE.Mesh;
-    Bezel_BezelAndNotch_0: THREE.Mesh;
-    Bezel_SpeakerAndMiic_0: THREE.Mesh;
-    Bezel_CameraGray_0: THREE.Mesh;
-    Bezel_FrontCameraGlass_0: THREE.Mesh;
-    PowerButton_BlueGlossy_0: THREE.Mesh;
-    Volume_Button_BlueGlossy_0: THREE.Mesh;
-    MuteButton_BlueGlossy_0: THREE.Mesh;
-    Sphere_Lens_0: THREE.Mesh;
-    Camera1_CameraBlack_0: THREE.Mesh;
-    Camera1_CameraMetal_0: THREE.Mesh;
-    Camera1_CameraGray_0: THREE.Mesh;
-    Sphere002_Lens_0: THREE.Mesh;
-    Camera2_CameraBlack_0: THREE.Mesh;
-    Camera2_CameraMetal_0: THREE.Mesh;
-    Camera2_CameraGray_0: THREE.Mesh;
-    Sphere001_Lens_0: THREE.Mesh;
-    Camera3_CameraBlack_0: THREE.Mesh;
-    Camera3_CameraMetal_0: THREE.Mesh;
-    Camera3_CameraGray_0: THREE.Mesh;
-    LiDar_LiDar_0: THREE.Mesh;
-    Flash_Silver_0: THREE.Mesh;
-    Flash_Flash_0: THREE.Mesh;
-    CameraModuleGlass_Glass_0: THREE.Mesh;
-    FrontCam_Lens_0: THREE.Mesh;
-    Apple_Logo_AppleLogo_0: THREE.Mesh;
-    IPHONE13_BlueGlossy_0: THREE.Mesh;
-    IPHONE13_Red_0: THREE.Mesh;
-    IPHONE13_BlueMatte_0: THREE.Mesh;
-    IPHONE13_SpeakerAndMiic_0: THREE.Mesh;
-    IPHONE13_Silver001_0: THREE.Mesh;
-  };
-  materials: {
-    Blue: THREE.MeshStandardMaterial;
-    Screen: THREE.MeshStandardMaterial;
-    BlackGlossy: THREE.MeshStandardMaterial;
-    SpeakerAndMiic: THREE.MeshStandardMaterial;
-    BezelAndNotch: THREE.MeshStandardMaterial;
-    CameraGray: THREE.MeshStandardMaterial;
-    FrontCameraGlass: THREE.MeshStandardMaterial;
-    BlueGlossy: THREE.MeshStandardMaterial;
-    Lens: THREE.MeshStandardMaterial;
-    CameraBlack: THREE.MeshStandardMaterial;
-    CameraMetal: THREE.MeshStandardMaterial;
-    LiDar: THREE.MeshStandardMaterial;
-    Silver: THREE.MeshStandardMaterial;
-    Flash: THREE.MeshStandardMaterial;
-    Glass: THREE.MeshStandardMaterial;
-    AppleLogo: THREE.MeshStandardMaterial;
-    material: THREE.MeshStandardMaterial;
-    BlueMatte: THREE.MeshStandardMaterial;
-    ["Silver.001"]: THREE.MeshStandardMaterial;
-  };
-};
-
 const Iphone13Concept = ({ upload }: Props) => {
   const snap = useSnapshot(state);
   const { nodes, materials } = useGLTF(
     "/threejs/iphone-13-pro-concept.gltf"
-  ) as GLTFResult;
+  ) as Iphone13ConceptGLTFResult;
 
-  const groupRef = useRef();
   const objectRef = useRef<Group>();
-
-  const [active, setActive] = useState(false);
-
-  const INITIAL_CAMERA_POSITION = { x: 0, y: 1.5308084989341915e-15, z: 25 };
-  const INITIAL_CAMERA_ROTATION = [0, 0, 0];
-
-  const { rotation: cameraRotation } = useSpring({
-    rotation: [
-      snap.cameraRotationX,
-      snap.cameraRotationY,
-      snap.cameraRotationZ,
-    ],
-    config: config.molasses,
-  });
 
   const { rotation: objectRotation } = useSpring({
     rotation: [
@@ -108,9 +34,6 @@ const Iphone13Concept = ({ upload }: Props) => {
 
   const { camera } = useThree();
 
-  console.log("update production matrix");
-  console.log(snap.cameraRotationX);
-
   camera.updateProjectionMatrix();
 
   const texture = useLoader(
@@ -118,23 +41,56 @@ const Iphone13Concept = ({ upload }: Props) => {
     upload.presignedUrl || placeholder.src
   );
 
+  // const texture = useVideoTexture(url)
+
+  const [screenIsHovered, setScreenIsHovered] = useState(false);
+  const [pointerIsDown, setPointerIsDown] = useState(false);
+
+  const textureClone = useMemo(() => {
+    const clone = texture.clone();
+    clone.wrapS = ClampToEdgeWrapping;
+    clone.wrapT = ClampToEdgeWrapping;
+
+    return clone;
+  }, [texture]);
+
+  // textureClone.wrapT = ClampToEdgeWrapping;
+
+  let imgIntrinsicW = 1; // make 1 to prevent 0/0
+  let imgIntrinsicH = 1;
+
+  const img = new Image();
+  img.src = upload.presignedUrl || placeholder.src;
+  img.crossOrigin = "anonymous";
+
+  img.onload = function () {
+    imgIntrinsicW = img.naturalWidth;
+    imgIntrinsicH = img.naturalHeight;
+
+    // textureClone.repeat.set(2, 1);
+    textureClone.repeat.y = (imgIntrinsicW * 2) / imgIntrinsicH;
+    // textureClone.repeat.set(1, );
+  };
+  useEffect(() => {
+    // screenRef?.current?.style?.cursor = screenIsHovered ? "pointer" : "auto";
+    document.body.style.cursor = (() => {
+      if (screenIsHovered && pointerIsDown) return "grabbing";
+      else if (screenIsHovered && !pointerIsDown) return "grab";
+      else return "auto";
+    })();
+  }, [screenIsHovered, pointerIsDown]);
+
   return (
-    <group dispose={null} ref={groupRef}>
+    <group dispose={null}>
       {/* x z y */}
 
       <animated.group
         position={[0, 0.5, 0]}
         scale={0.7}
-        // rotation={objectRotation}
-        rotation={objectRotation}
-        ref={objectRef}
-
-        // rotation={[-Math.PI / 2, 0, Math.PI - 0.5]}
+        rotation={objectRotation as any} // TODO it kinda converts num[] automatically
+        ref={objectRef as any} // TODO
       >
         <group>
-          {/* <group position={[0, 0, -0.01]} rotation={[0, 0, 0]}>
-        <group rotation={[0, 0, 0]} scale={0.01}>
-          <group rotation={[-Math.PI / 2, 0, Math.PI]} scale={80}> */}
           <mesh
             geometry={nodes.BackCover_Blue_0.geometry}
             material={materials.Blue}
@@ -143,7 +99,42 @@ const Iphone13Concept = ({ upload }: Props) => {
           <mesh
             geometry={nodes.Screen_Screen_0.geometry}
             material={materials.Screen}
-            material-map={texture}
+            material-map={textureClone}
+            // scale={useAspect(1, 2)}
+            // scale={[1, 1, 2]}
+            // className="cursor-pointer"
+            onPointerEnter={() => setScreenIsHovered(true)}
+            onPointerLeave={() => setScreenIsHovered(false)} // for cursor
+            onPointerDown={() => {
+              setPointerIsDown(true);
+              state.cameraIsFrozen = true; // so camera don't move when adjusting wallpaper
+            }}
+            onPointerUp={() => {
+              setPointerIsDown(false);
+              state.cameraIsFrozen = false;
+            }}
+            onPointerMove={(e: any) => {
+              if (pointerIsDown) {
+                const SCREEN_HEIGHT_TO_WIDTH =
+                  PHONE_SCREEN_HEIGHT / PHONE_SCREEN_WIDTH;
+
+                const imgHeightToWidth = imgIntrinsicH / imgIntrinsicW;
+
+                const pagesNum: number =
+                  imgHeightToWidth / SCREEN_HEIGHT_TO_WIDTH;
+                const uppperBreakpoint = pagesNum / (pagesNum + 1);
+
+                if (textureClone.offset.y <= 0 && e.movementY < 0) return; // prevent going further down
+                if (
+                  textureClone.offset.y >= uppperBreakpoint &&
+                  e.movementY > 0
+                ) {
+                  return;
+                }
+
+                textureClone.offset.y += e.movementY / 500;
+              }
+            }}
           />
           <mesh
             geometry={nodes.CameraModuleBlack_BlackGlossy_0.geometry}

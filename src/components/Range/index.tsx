@@ -5,8 +5,8 @@ interface Props {
   value: number;
   min: number;
   max: number;
-  onChange: (e) => void;
-  onInput: (e) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Range = ({ value = 0, label, min, max, onChange, onInput }: Props) => {

@@ -1,15 +1,13 @@
-import { MdOutlineCenterFocusStrong } from "react-icons/md";
-import { HiOutlineDeviceMobile } from "react-icons/hi";
-import { GiStripedSun } from "react-icons/gi";
-import { TbRotate360, TbRotate } from "react-icons/tb";
-
-import { IoMdDownload } from "react-icons/io";
-
-import gsap from "gsap";
-import rgbaToRgb from "rgba-to-rgb";
 /* eslint-disable @next/next/no-img-element */
+import { GiStripedSun } from "react-icons/gi";
+import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
+import { MdOutlineCenterFocusStrong } from "react-icons/md";
+import { TbRotate, TbRotate360 } from "react-icons/tb";
+import { IoMdDownload } from "react-icons/io";
+import rgbaToRgb from "rgba-to-rgb";
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
+import gsap from "gsap";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
 import { useSelector } from "react-redux";
@@ -18,11 +16,12 @@ import { proxy, useSnapshot } from "valtio";
 import useClickOutside from "../functions/src/hooks/useClickOutside";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
-import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
-import { RootState } from "../src/redux/store";
 import DiagonalLine from "../src/components/DiagonalLine";
-import { primaryColor } from "../theme";
+import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Range from "../src/components/Range";
+import { RootState } from "../src/redux/store";
+import { debounce } from "../src/utils/debounce";
+import { inactiveGrey, primaryColor } from "../theme";
 
 interface Props {}
 
@@ -41,7 +40,10 @@ interface ProxyState {
   cameraPositionY: number;
   cameraPositionZ: number;
 
+  cameraIsFrozen: boolean;
+
   shadowIsOn: boolean;
+  glareIsOn: boolean;
   bgIsTransparent: boolean;
   camera: null | Camera;
   objectRotationX: number;
@@ -54,12 +56,14 @@ export const state: ProxyState = proxy({
   cameraRotationY: 0,
   cameraRotationZ: 0,
 
+  cameraIsFrozen: false,
   cameraPositionX: 0,
   cameraPositionY: 0,
   cameraPositionZ: 5,
 
   shadowIsOn: true,
   bgIsTransparent: false,
+  glareIsOn: true,
   camera: null,
 
   objectRotationX: -Math.PI / 2,
@@ -71,13 +75,6 @@ const ThreeDimension = ({}: Props) => {
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
   const snap = useSnapshot(state);
-
-  console.log(
-    "--------",
-    snap.cameraPositionX,
-    snap.cameraPositionY,
-    snap.cameraPositionZ
-  );
 
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
 
@@ -117,10 +114,6 @@ const ThreeDimension = ({}: Props) => {
     link.href = url;
     link.click();
   };
-
-  console.log("snap", snap.objectRotationX);
-  console.log("snap", snap.objectRotationY);
-  console.log("snap", snap.objectRotationZ);
 
   return (
     <div className="h-screen relative ">
@@ -162,7 +155,7 @@ const ThreeDimension = ({}: Props) => {
         >
           <Button
             label={upload.presignedUrl ? "Replace" : "Upload"}
-            buttonType={
+            type={
               upload.presignedUrl ? ButtonTypes.OUTLINED : ButtonTypes.PRIMARY
             }
           />
@@ -216,10 +209,31 @@ const ThreeDimension = ({}: Props) => {
         >
           <HiOutlineDeviceMobile
             size={40} // px
-            color={primaryColor}
+            color={
+              snap.objectRotationX === -Math.PI / 2 &&
+              snap.objectRotationY === 0 &&
+              snap.objectRotationZ === Math.PI
+                ? inactiveGrey
+                : primaryColor
+            }
           />
 
           <p className="text-primary">Center Phone</p>
+        </div>
+
+        <div
+          className="flex-col items-center cursor-pointer "
+          onClick={() => {
+            state.glareIsOn = !snap.glareIsOn;
+          }}
+        >
+          <HiOutlineLightBulb
+            size={40} // px
+            color={snap.glareIsOn ? primaryColor : inactiveGrey}
+            className="rotate-180"
+          />
+
+          <p className="text-primary">Glare</p>
         </div>
 
         <div
@@ -227,13 +241,22 @@ const ThreeDimension = ({}: Props) => {
           onClick={() => {
             const camera = snap.camera;
             if (camera) {
-              handleCameraRotation(camera);
+              handleCameraRotation(camera as Camera);
             }
           }}
         >
           <MdOutlineCenterFocusStrong
             size={40} // px
-            color={primaryColor}
+            color={
+              -0.1 < snap.cameraPositionX &&
+              snap.cameraPositionX < 0.1 &&
+              -2.9 < snap.cameraPositionY &&
+              snap.cameraPositionY < 3.1 &&
+              4.9 < snap.cameraPositionZ &&
+              snap.cameraPositionZ < 5.1
+                ? inactiveGrey
+                : primaryColor
+            }
           />
 
           <p className="text-primary">Center Camera</p>
@@ -248,8 +271,12 @@ const ThreeDimension = ({}: Props) => {
             />
           }
           value={snap.objectRotationX}
-          onChange={(e) => (state.objectRotationX = e.target.value)}
-          onInput={(e) => (state.objectRotationX = e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationX = parseFloat(e.target.value);
+          }}
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationX = parseFloat(e.target.value);
+          }}
           min={0}
           max={Math.PI * 2}
         />
@@ -262,8 +289,12 @@ const ThreeDimension = ({}: Props) => {
             />
           }
           value={snap.objectRotationY}
-          onChange={(e) => (state.objectRotationY = e.target.value)}
-          onInput={(e) => (state.objectRotationY = e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationY = parseFloat(e.target.value);
+          }}
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationY = parseFloat(e.target.value);
+          }}
           min={0}
           max={Math.PI * 2}
         />
@@ -275,8 +306,12 @@ const ThreeDimension = ({}: Props) => {
             />
           }
           value={snap.objectRotationZ}
-          onChange={(e) => (state.objectRotationZ = e.target.value)}
-          onInput={(e) => (state.objectRotationZ = e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationZ = parseFloat(e.target.value);
+          }}
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+            state.objectRotationZ = parseFloat(e.target.value);
+          }}
           min={0}
           max={Math.PI * 2}
         />
@@ -289,7 +324,7 @@ const ThreeDimension = ({}: Props) => {
         >
           <GiStripedSun
             size={40} // px
-            color={primaryColor}
+            color={snap.shadowIsOn ? primaryColor : inactiveGrey}
           />
 
           <p className="text-primary">Shadow</p>
@@ -329,7 +364,6 @@ const Scene = ({ upload }: SceneProps) => {
   const snap = useSnapshot(state);
   const rgb = rgbaToRgb(RGB_WHITE_BG, snap.canvaColor);
 
-  console.log("snap camera x", snap.cameraRotationX);
   const { camera } = useThree();
 
   useEffect(() => {
@@ -339,16 +373,24 @@ const Scene = ({ upload }: SceneProps) => {
   return (
     <>
       {!snap.bgIsTransparent && <color attach="background" args={[rgb]} />}
-      <OrbitControls enableZoom={true} enableRotate={true} />
-      <ambientLight intensity={0.5} />
-
-      {/* {camera && <cameraHelper args={[camera]} />} */}
-
-      <spotLight intensity={0.3} position={[5, 0, -10]} />
-      <directionalLight
-        position={[-2, 5, 2]} //x,y,z
-        intensity={1}
+      <OrbitControls
+        enableZoom={true}
+        enableRotate={snap.cameraIsFrozen ? false : true}
+        onChange={debounce(() => {
+          state.cameraPositionX = camera.position.x;
+          state.cameraPositionY = camera.position.y;
+          state.cameraPositionZ = camera.position.z;
+        }, 200)}
       />
+      <ambientLight intensity={1.5} position={[-2, 5, 10]} />
+
+      {snap.glareIsOn && (
+        <directionalLight
+          position={[-5, 10, 20]} //x,y,z
+          intensity={0.6}
+        />
+      )}
+
       <Suspense fallback={null}>
         <Iphone13Concept upload={upload} />
 

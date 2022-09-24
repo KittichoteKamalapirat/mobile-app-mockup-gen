@@ -23,6 +23,7 @@ const primaryHoveredColor = "#FEBA72";
 
 const bgColor = grey0;
 const primaryTextColor = grey900;
+const inactiveGrey = grey200;
 
 // font family
 const sansFamily = ["Arial", "sans-serif"];
@@ -64,6 +65,7 @@ module.exports = {
         grey: {
           "text-primary": primaryTextColor, // text-text-primary
           "bg-color": bgColor, // text-bg-color
+          inactive: inactiveGrey,
           0: grey0, // text-grey-0
           50: grey50,
           100: grey100,
