@@ -1,16 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
-import { GiStripedSun } from "react-icons/gi";
-import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
-import { MdOutlineCenterFocusStrong } from "react-icons/md";
-import { TbRotate, TbRotate360 } from "react-icons/tb";
-import { IoMdDownload } from "react-icons/io";
-import rgbaToRgb from "rgba-to-rgb";
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
+import { GiStripedSun } from "react-icons/gi";
+import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
+import { CgColorPicker } from "react-icons/cg";
+
+import { IoMdDownload } from "react-icons/io";
+import { MdOutlineCenterFocusStrong } from "react-icons/md";
+import { TbRotate, TbRotate360 } from "react-icons/tb";
 import { useSelector } from "react-redux";
+import rgbaToRgb from "rgba-to-rgb";
 import { Camera } from "three";
 import { proxy, useSnapshot } from "valtio";
 import useClickOutside from "../functions/src/hooks/useClickOutside";
@@ -22,6 +24,17 @@ import Range from "../src/components/Range";
 import { RootState } from "../src/redux/store";
 import { debounce } from "../src/utils/debounce";
 import { inactiveGrey, primaryColor } from "../theme";
+
+import DropdownModal from "../src/components/DropdownModal";
+import SmallHeading from "../src/components/typography/SmallHeading";
+import {
+  DEFAULT_ROTATION_X,
+  DEFAULT_ROTATION_Y,
+  DEFAULT_ROTATION_Z,
+  ICON_SIZE,
+  RGBA_BLACK,
+  RGBA_WHITE,
+} from "../src/constants";
 
 interface Props {}
 
@@ -66,9 +79,9 @@ export const state: ProxyState = proxy({
   glareIsOn: true,
   camera: null,
 
-  objectRotationX: -Math.PI / 2,
-  objectRotationY: 0,
-  objectRotationZ: Math.PI,
+  objectRotationX: DEFAULT_ROTATION_X,
+  objectRotationY: DEFAULT_ROTATION_Y,
+  objectRotationZ: DEFAULT_ROTATION_Z,
 });
 
 const ThreeDimension = ({}: Props) => {
@@ -76,9 +89,16 @@ const ThreeDimension = ({}: Props) => {
 
   const snap = useSnapshot(state);
 
-  const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
+  console.log("snap", snap.canvaColor);
 
-  const close = useCallback(() => setColorPickerIsOpen(false), []);
+  const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
+  const [objectDropdownIsOpen, setObjectDropdownIsOpen] = useState(false);
+
+  const closeColorPicker = useCallback(() => setColorPickerIsOpen(false), []);
+  const closeRotateObjectDropdown = useCallback(
+    () => setObjectDropdownIsOpen(false),
+    []
+  );
 
   const toggleShadow = () => (state.shadowIsOn = !state.shadowIsOn);
   const toggleTransparentBg = () =>
@@ -86,20 +106,59 @@ const ThreeDimension = ({}: Props) => {
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
+  const rotateObjectDropdownRef = useRef<HTMLDivElement>(null);
 
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
 
-  useClickOutside(colorPickerRef, close);
+  useClickOutside(colorPickerRef, closeColorPicker);
+  useClickOutside(rotateObjectDropdownRef, closeRotateObjectDropdown);
 
-  const handleCameraRotation = (camera: Camera) => {
-    // camera.position.set(0, 0, 5);
-
+  const resetCameraPosition = (camera: Camera) => {
     gsap.to(camera.position, {
       duration: 1,
       x: 0,
       y: 0,
       z: 5,
     });
+  };
+
+  const presetAngle1 = (camera: Camera) => {
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 5,
+    });
+
+    state.objectRotationX = DEFAULT_ROTATION_X;
+    state.objectRotationY = DEFAULT_ROTATION_Y;
+    state.objectRotationZ = DEFAULT_ROTATION_Z;
+  };
+
+  const presetAngle2 = (camera: Camera) => {
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 5,
+    });
+
+    state.objectRotationX = DEFAULT_ROTATION_X - 0.3;
+    state.objectRotationY = DEFAULT_ROTATION_Y + 0.2;
+    state.objectRotationZ = DEFAULT_ROTATION_Z;
+  };
+
+  const presetAngle3 = (camera: Camera) => {
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 0,
+      z: 5,
+    });
+
+    state.objectRotationX = DEFAULT_ROTATION_X - 0.3;
+    state.objectRotationY = DEFAULT_ROTATION_Y + 0.2;
+    state.objectRotationZ = DEFAULT_ROTATION_Z;
   };
 
   // create img from canvas
@@ -140,209 +199,341 @@ const ThreeDimension = ({}: Props) => {
         <Scene upload={upload} />
       </Canvas>
 
-      <div
-        id="menu"
-        className="flex-col p-2 absolute top-10 bg-grey-0 shadow-xl z-10"
-      >
-        <DropzoneField
-          ariaLabel="Image"
-          inputClass="my-2"
-          maxFiles={1}
-          fileUploads={fileUploads}
-          setFileUploads={setFileUploads}
-          showConfirmationOnDelete={false}
-          isDroppable={false}
+      <div id="fixed-side-bar" className="absolute top-0 h-screen z-10 ">
+        <div
+          id="sidebar-section"
+          className="flex flex-col justify-between items-center p-2 h-screen bg-grey-0 shadow-xl "
         >
-          <Button
-            label={upload.presignedUrl ? "Replace" : "Upload"}
-            type={
-              upload.presignedUrl ? ButtonTypes.OUTLINED : ButtonTypes.PRIMARY
-            }
-          />
-        </DropzoneField>
+          <div id="upload-section">
+            <DropzoneField
+              ariaLabel="Image"
+              inputClass="my-2"
+              maxFiles={1}
+              fileUploads={fileUploads}
+              setFileUploads={setFileUploads}
+              showConfirmationOnDelete={false}
+              isDroppable={false}
+            >
+              <Button
+                label={upload.presignedUrl ? "Replace" : "Upload"}
+                type={
+                  upload.presignedUrl
+                    ? ButtonTypes.OUTLINED
+                    : ButtonTypes.PRIMARY
+                }
+              />
+            </DropzoneField>
 
-        {upload.presignedUrl && (
-          <img
-            id="phone"
-            src={upload.presignedUrl}
-            alt="iphone mockup"
-            className="w-10 h-10"
-          />
-        )}
-
-        {colorPickerIsOpen && (
-          <div ref={colorPickerRef} className="my-2">
-            <RgbaStringColorPicker
-              color={snap.canvaColor}
-              onChange={(newColor) => (state.canvaColor = newColor)}
-            />
+            {upload.presignedUrl && (
+              <div className="w-10 h-10 border-1 border-grey-200 border-solid rounded-sm overflow-scroll">
+                <img
+                  id="phone"
+                  src={upload.presignedUrl}
+                  alt="iphone mockup"
+                  className=""
+                />
+              </div>
+            )}
           </div>
-        )}
 
-        <hr className="border-1 border-grey-100 border-solid my-2" />
-        <div
-          style={{
-            backgroundClip: "content-box",
-            backgroundColor: snap.canvaColor,
-            borderWidth: "1px",
-          }}
-          className="w-10 h-10 my-2 border-grey-200 border-solid rounded-full bg-green box-content"
-          onClick={() => setColorPickerIsOpen(true)}
-        />
+          <div id="editor-section" className="gap-2 w-full">
+            <div
+              id="bg-editor-section"
+              className="w-full flex flex-col items-center"
+            >
+              <SmallHeading heading="BG" extraClass="text-left w-full" />
+              <hr className="border-1 border-grey-100 border-solid my-1 w-full" />
+              <div
+                style={{
+                  backgroundClip: "content-box",
+                  backgroundColor: snap.canvaColor,
+                  borderWidth: "1px",
+                }}
+                className="w-10 h-10 my-2 border-grey-200 border-solid rounded-full box-content"
+                onClick={() => setColorPickerIsOpen(true)}
+              >
+                {colorPickerIsOpen && (
+                  <div ref={colorPickerRef} className="my-2 absolute z-50">
+                    <RgbaStringColorPicker
+                      color={snap.canvaColor}
+                      onChange={(newColor) => (state.canvaColor = newColor)}
+                    />
+                  </div>
+                )}
 
-        <div
-          className="flex-col items-center cursor-pointer"
-          onClick={toggleTransparentBg}
-        >
-          <DiagonalLine />
-        </div>
+                <div className="flex items-center justify-center">
+                  <CgColorPicker
+                    size={ICON_SIZE - 5} // px
+                    color={RGBA_WHITE}
+                  />
+                </div>
+              </div>
 
-        <hr className="border-1 border-grey-100 border-solid my-2" />
+              <div
+                style={{
+                  backgroundColor: RGBA_WHITE,
+                  borderWidth: "1px",
+                }}
+                className={`w-10 h-10 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                  snap.canvaColor === RGBA_WHITE && !snap.bgIsTransparent
+                    ? "border-primary"
+                    : "border-grey-200"
+                }`}
+                onClick={() => (state.canvaColor = RGBA_WHITE)}
+              />
 
-        <div
-          className="flex-col items-center cursor-pointer"
-          onClick={() => {
-            state.objectRotationX = -Math.PI / 2;
-            state.objectRotationY = 0;
-            state.objectRotationZ = Math.PI;
-          }}
-        >
-          <HiOutlineDeviceMobile
-            size={40} // px
-            color={
-              snap.objectRotationX === -Math.PI / 2 &&
-              snap.objectRotationY === 0 &&
-              snap.objectRotationZ === Math.PI
-                ? inactiveGrey
-                : primaryColor
-            }
-          />
+              <div
+                style={{
+                  backgroundColor: RGBA_BLACK,
+                  borderWidth: "1px",
+                }}
+                className={`w-10 h-10 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                  snap.canvaColor === RGBA_BLACK && !snap.bgIsTransparent
+                    ? "border-primary"
+                    : "border-grey-200"
+                }`}
+                onClick={() => (state.canvaColor = RGBA_BLACK)}
+              />
 
-          <p className="text-primary">Center Phone</p>
-        </div>
+              <div
+                className={`flex-col items-center cursor-pointer `}
+                onClick={toggleTransparentBg}
+              >
+                <DiagonalLine isActive={snap.bgIsTransparent} />
+              </div>
+              <div
+                id="glare"
+                className="flex-col items-center cursor-pointer "
+                onClick={() => {
+                  state.glareIsOn = !snap.glareIsOn;
+                }}
+              >
+                <HiOutlineLightBulb
+                  size={ICON_SIZE} // px
+                  color={snap.glareIsOn ? primaryColor : inactiveGrey}
+                  className="rotate-180"
+                />
 
-        <div
-          className="flex-col items-center cursor-pointer "
-          onClick={() => {
-            state.glareIsOn = !snap.glareIsOn;
-          }}
-        >
-          <HiOutlineLightBulb
-            size={40} // px
-            color={snap.glareIsOn ? primaryColor : inactiveGrey}
-            className="rotate-180"
-          />
+                <p className="text-primary text-sm  text-center">Glare</p>
+              </div>
+              <div
+                id="shadow"
+                className="flex-col items-center cursor-pointer"
+                onClick={toggleShadow}
+              >
+                <GiStripedSun
+                  size={ICON_SIZE} // px
+                  color={snap.shadowIsOn ? primaryColor : inactiveGrey}
+                />
 
-          <p className="text-primary">Glare</p>
-        </div>
+                <p className="text-primary text-sm  text-center">Shadow</p>
+              </div>
+            </div>
 
-        <div
-          className="flex-col items-center cursor-pointer"
-          onClick={() => {
-            const camera = snap.camera;
-            if (camera) {
-              handleCameraRotation(camera as Camera);
-            }
-          }}
-        >
-          <MdOutlineCenterFocusStrong
-            size={40} // px
-            color={
-              -0.1 < snap.cameraPositionX &&
-              snap.cameraPositionX < 0.1 &&
-              -2.9 < snap.cameraPositionY &&
-              snap.cameraPositionY < 3.1 &&
-              4.9 < snap.cameraPositionZ &&
-              snap.cameraPositionZ < 5.1
-                ? inactiveGrey
-                : primaryColor
-            }
-          />
+            <div
+              id="object-editor-section"
+              className="w-full flex flex-col items-center"
+            >
+              <SmallHeading heading="Phone" extraClass="text-left w-full" />
+              <hr className="border-1 border-grey-100 border-solid my-1 w-full" />
 
-          <p className="text-primary">Center Camera</p>
-        </div>
+              <div
+                className="flex-col items-center cursor-pointer"
+                onClick={() => {
+                  state.objectRotationX = DEFAULT_ROTATION_X;
+                  state.objectRotationY = DEFAULT_ROTATION_Y;
+                  state.objectRotationZ = DEFAULT_ROTATION_Z;
+                }}
+              >
+                <HiOutlineDeviceMobile
+                  size={ICON_SIZE} // px
+                  color={
+                    snap.objectRotationX === DEFAULT_ROTATION_X &&
+                    snap.objectRotationY === DEFAULT_ROTATION_Y &&
+                    snap.objectRotationZ === DEFAULT_ROTATION_Z
+                      ? inactiveGrey
+                      : primaryColor
+                  }
+                />
 
-        <Range
-          label={
-            <TbRotate360
-              size={40} // px
-              color={primaryColor}
-              className="-rotate-45"
-            />
-          }
-          value={snap.objectRotationX}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationX = parseFloat(e.target.value);
-          }}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationX = parseFloat(e.target.value);
-          }}
-          min={0}
-          max={Math.PI * 2}
-        />
-        <Range
-          label={
-            <TbRotate360
-              size={40} // px
-              color={primaryColor}
-              className="rotate-45"
-            />
-          }
-          value={snap.objectRotationY}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationY = parseFloat(e.target.value);
-          }}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationY = parseFloat(e.target.value);
-          }}
-          min={0}
-          max={Math.PI * 2}
-        />
-        <Range
-          label={
-            <TbRotate
-              size={40} // px
-              color={primaryColor}
-            />
-          }
-          value={snap.objectRotationZ}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationZ = parseFloat(e.target.value);
-          }}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-            state.objectRotationZ = parseFloat(e.target.value);
-          }}
-          min={0}
-          max={Math.PI * 2}
-        />
+                <p className="text-primary text-sm text-center">Center</p>
+              </div>
 
-        <hr className="border-1 border-grey-100 border-solid my-2" />
+              {/* x */}
 
-        <div
-          className="flex-col items-center cursor-pointer"
-          onClick={toggleShadow}
-        >
-          <GiStripedSun
-            size={40} // px
-            color={snap.shadowIsOn ? primaryColor : inactiveGrey}
-          />
+              <div ref={rotateObjectDropdownRef}>
+                <DropdownModal
+                  isOpen={objectDropdownIsOpen}
+                  button={
+                    <div
+                      className="flex flex-col items-center cursor-pointer"
+                      onClick={() =>
+                        setObjectDropdownIsOpen(!objectDropdownIsOpen)
+                      }
+                    >
+                      <TbRotate
+                        size={ICON_SIZE} // px
+                        color={primaryColor}
+                      />
+                      <p className="text-primary text-sm">Rotate</p>
+                    </div>
+                  }
+                >
+                  <Range
+                    label={
+                      <TbRotate360
+                        size={ICON_SIZE} // px
+                        color={primaryColor}
+                        className="-rotate-45"
+                      />
+                    }
+                    value={snap.objectRotationX}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationX = parseFloat(e.target.value);
+                    }}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationX = parseFloat(e.target.value);
+                    }}
+                    min={DEFAULT_ROTATION_X - Math.PI}
+                    max={DEFAULT_ROTATION_X + Math.PI}
+                  />
+                  {/* y */}
+                  <Range
+                    label={
+                      <TbRotate360
+                        size={ICON_SIZE} // px
+                        color={primaryColor}
+                        className="rotate-45"
+                      />
+                    }
+                    value={snap.objectRotationY}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationY = parseFloat(e.target.value);
+                    }}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationY = parseFloat(e.target.value);
+                    }}
+                    min={DEFAULT_ROTATION_Y - Math.PI}
+                    max={DEFAULT_ROTATION_Y + Math.PI}
+                  />
 
-          <p className="text-primary">Shadow</p>
-        </div>
+                  {/* z */}
+                  <Range
+                    label={
+                      <TbRotate
+                        size={ICON_SIZE} // px
+                        color={primaryColor}
+                      />
+                    }
+                    value={snap.objectRotationZ}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationZ = parseFloat(e.target.value);
+                    }}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.objectRotationZ = parseFloat(e.target.value);
+                    }}
+                    min={DEFAULT_ROTATION_Z - Math.PI}
+                    max={DEFAULT_ROTATION_Z + Math.PI}
+                  />
+                </DropdownModal>
+              </div>
 
-        <div
-          className="flex-col items-center cursor-pointer"
-          onClick={handleDownload}
-        >
-          <IoMdDownload
-            size={40} // px
-            color={primaryColor}
-          />
+              <div
+                id="camera-editor-section"
+                className="w-full flex flex-col items-center"
+              >
+                <SmallHeading heading="Camera" extraClass="text-left w-full" />
+                <hr className="border-1 border-grey-100 border-solid my-1 w-full" />
 
-          <p className="text-primary">Download</p>
+                <div
+                  id="camera"
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => {
+                    const camera = snap.camera;
+                    if (camera) {
+                      resetCameraPosition(camera as Camera);
+                    }
+                  }}
+                >
+                  <MdOutlineCenterFocusStrong
+                    size={ICON_SIZE} // px
+                    color={
+                      -0.1 < snap.cameraPositionX &&
+                      snap.cameraPositionX < 0.1 &&
+                      -2.9 < snap.cameraPositionY &&
+                      snap.cameraPositionY < 3.1 &&
+                      4.9 < snap.cameraPositionZ &&
+                      snap.cameraPositionZ < 5.1
+                        ? inactiveGrey
+                        : primaryColor
+                    }
+                  />
+
+                  <p className="text-primary text-sm">Center</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="download-section">
+            <div
+              className="flex-col items-center cursor-pointer"
+              onClick={handleDownload}
+            >
+              <IoMdDownload
+                size={ICON_SIZE} // px
+                color={primaryColor}
+              />
+
+              <p className="text-primary text-sm">Download</p>
+            </div>
+          </div>
         </div>
       </div>
 
+      <div id="fixed-bottom-bar" className="absolute bottom-0 right-0 z-10 ">
+        {snap.camera && (
+          <div>
+            <div
+              id="camera"
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => {
+                const camera = snap.camera;
+
+                presetAngle1(camera as Camera);
+              }}
+            >
+              Preset 1
+            </div>
+
+            <div
+              id="camera"
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => {
+                const camera = snap.camera;
+
+                presetAngle2(camera as Camera);
+              }}
+            >
+              Preset 2
+            </div>
+
+            <div
+              id="camera"
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => {
+                const camera = snap.camera;
+
+                presetAngle3(camera as Camera);
+              }}
+            >
+              Preset 3
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* transparent bg */}
       <img
         id="transparent-bg"
         src="/images/transparent-background.png"
@@ -387,7 +578,7 @@ const Scene = ({ upload }: SceneProps) => {
       {snap.glareIsOn && (
         <directionalLight
           position={[-5, 10, 20]} //x,y,z
-          intensity={0.6}
+          intensity={0.4}
         />
       )}
 

@@ -11,7 +11,7 @@ interface Props {
 
 const Range = ({ value = 0, label, min, max, onChange, onInput }: Props) => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center w-full">
       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
         {label}
       </label>
