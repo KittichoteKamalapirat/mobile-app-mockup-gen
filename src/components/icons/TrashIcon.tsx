@@ -26,7 +26,7 @@ const TrashIcon = ({ height, width, colour, label }: Props) => (
 TrashIcon.defaultProps = {
   height: "h-3",
   width: "w-3",
-  colour: "text-primary",
+  colour: "text-blurple-link",
   label: "Trash",
 };
 

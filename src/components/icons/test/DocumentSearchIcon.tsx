@@ -6,13 +6,7 @@ interface Props {
   extraClass: string;
 }
 
-const DocumentSearchIcon = ({
-  height,
-  width,
-  colour,
-  label,
-  extraClass,
-}: Props) => (
+const DocumentSearchIcon = ({ height, width, colour, label, extraClass }: Props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     className={`${colour} ${width} ${height} ${extraClass}`}
@@ -33,7 +27,7 @@ const DocumentSearchIcon = ({
 DocumentSearchIcon.defaultProps = {
   height: "h-3",
   width: "w-3",
-  colour: "text-primary",
+  colour: "text-blurple-link",
   label: "Document search",
   extraClass: "",
 };

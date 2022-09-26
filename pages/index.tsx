@@ -35,6 +35,10 @@ import {
   RGBA_BLACK,
   RGBA_WHITE,
 } from "../src/constants";
+import SvgPreset1 from "../src/components/icons/Preset1";
+import SvgPreset4 from "../src/components/icons/Preset4";
+import SvgPreset3 from "../src/components/icons/Preset3";
+import SvgPreset2 from "../src/components/icons/Preset2";
 
 interface Props {}
 
@@ -145,19 +149,32 @@ const ThreeDimension = ({}: Props) => {
 
     state.objectRotationX = DEFAULT_ROTATION_X - 0.3;
     state.objectRotationY = DEFAULT_ROTATION_Y + 0.2;
-    state.objectRotationZ = DEFAULT_ROTATION_Z;
+    state.objectRotationZ = DEFAULT_ROTATION_Z - 0.4;
   };
 
   const presetAngle3 = (camera: Camera) => {
     gsap.to(camera.position, {
       duration: 1,
-      x: 0,
-      y: 0,
-      z: 5,
+      x: -4,
+      y: 2,
+      z: 7,
     });
 
-    state.objectRotationX = DEFAULT_ROTATION_X - 0.3;
-    state.objectRotationY = DEFAULT_ROTATION_Y + 0.2;
+    state.objectRotationX = DEFAULT_ROTATION_X;
+    state.objectRotationY = DEFAULT_ROTATION_Y;
+    state.objectRotationZ = DEFAULT_ROTATION_Z;
+  };
+
+  const presetAngle4 = (camera: Camera) => {
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 2.7,
+      y: 4.4,
+      z: 4,
+    });
+
+    state.objectRotationX = DEFAULT_ROTATION_X - Math.PI / 2;
+    state.objectRotationY = DEFAULT_ROTATION_Y;
     state.objectRotationZ = DEFAULT_ROTATION_Z;
   };
 
@@ -400,10 +417,9 @@ const ThreeDimension = ({}: Props) => {
                   {/* y */}
                   <Range
                     label={
-                      <TbRotate360
+                      <TbRotate
                         size={ICON_SIZE} // px
                         color={primaryColor}
-                        className="rotate-45"
                       />
                     }
                     value={snap.objectRotationY}
@@ -420,9 +436,10 @@ const ThreeDimension = ({}: Props) => {
                   {/* z */}
                   <Range
                     label={
-                      <TbRotate
+                      <TbRotate360
                         size={ICON_SIZE} // px
                         color={primaryColor}
+                        className="rotate-45"
                       />
                     }
                     value={snap.objectRotationZ}
@@ -491,9 +508,13 @@ const ThreeDimension = ({}: Props) => {
         </div>
       </div>
 
-      <div id="fixed-bottom-bar" className="absolute bottom-0 right-0 z-10 ">
+      <div
+        id="fixed-bottom-bar"
+        className="flex justify-center absolute bottom-0 right-0 left-0 "
+        style={{ zIndex: 9 }}
+      >
         {snap.camera && (
-          <div>
+          <div className="flex gap-4 shadow-xl p-4 m-2 rounded-xl">
             <div
               id="camera"
               className="flex flex-col items-center cursor-pointer"
@@ -503,7 +524,7 @@ const ThreeDimension = ({}: Props) => {
                 presetAngle1(camera as Camera);
               }}
             >
-              Preset 1
+              <SvgPreset1 />
             </div>
 
             <div
@@ -515,7 +536,7 @@ const ThreeDimension = ({}: Props) => {
                 presetAngle2(camera as Camera);
               }}
             >
-              Preset 2
+              <SvgPreset2 />
             </div>
 
             <div
@@ -527,7 +548,19 @@ const ThreeDimension = ({}: Props) => {
                 presetAngle3(camera as Camera);
               }}
             >
-              Preset 3
+              <SvgPreset3 />
+            </div>
+
+            <div
+              id="camera"
+              className="flex flex-col items-center cursor-pointer"
+              onClick={() => {
+                const camera = snap.camera;
+
+                presetAngle4(camera as Camera);
+              }}
+            >
+              <SvgPreset4 />
             </div>
           </div>
         )}
@@ -571,6 +604,10 @@ const Scene = ({ upload }: SceneProps) => {
           state.cameraPositionX = camera.position.x;
           state.cameraPositionY = camera.position.y;
           state.cameraPositionZ = camera.position.z;
+
+          console.log("x", camera.position.x);
+          console.log("y", camera.position.y);
+          console.log("z", camera.position.z);
         }, 200)}
       />
       <ambientLight intensity={1.5} position={[-2, 5, 10]} />

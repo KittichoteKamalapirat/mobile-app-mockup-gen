@@ -1,8 +1,8 @@
 import React from "react";
 import { UploadedFile } from ".";
 import IconButton from "../Buttons/IconButton";
+import DocumentSearchIcon from "../icons/test/DocumentSearchIcon";
 
-import DocumentSearchIcon from "../icons/DocumentSearchIcon";
 import TrashIcon from "../icons/TrashIcon";
 
 interface Props {

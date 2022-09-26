@@ -1,19 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import KebabMenuIcon from "../KebabMenuIcon";
+import DocumentSearchIcon from "./test/DocumentSearchIcon";
 
 describe("ButtonIcon", () => {
   it("renders the default icon", () => {
-    render(<KebabMenuIcon />);
+    render(<DocumentSearchIcon label="search-icon" />);
 
-    const icon = screen.getByLabelText("dots-vertical-icon");
+    const icon = screen.getByLabelText("search-icon");
     expect(icon).toBeInTheDocument();
   });
 
   it("renders the icon with updated attributes", () => {
-    render(<KebabMenuIcon height="h-7" width="w-1" />);
+    render(<DocumentSearchIcon label="search-icon" height="h-7" width="w-1" />);
 
-    const icon = screen.getByLabelText("dots-vertical-icon");
+    const icon = screen.getByLabelText("search-icon");
     expect(icon).toBeInTheDocument();
     expect(icon).toHaveClass("w-1 h-7");
   });
