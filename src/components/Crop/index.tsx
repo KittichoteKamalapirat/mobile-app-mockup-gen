@@ -1,10 +1,11 @@
-import { useDrag } from "@use-gesture/react";
 import { animated, useSpring } from "@react-spring/web";
-import { ReactNode, useCallback, useRef, useState } from "react";
-import styles from "./index.module.css";
-import { state } from "../../../pages/design";
+import { useDrag } from "@use-gesture/react";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import Button, { ButtonTypes } from "../Buttons/Button";
+import useWindowDimensions from "../../../functions/src/hooks/useWindowDimensions";
+import { state } from "../../../pages/design";
+import Button from "../Buttons/Button";
+import styles from "./index.module.css";
 
 interface Props {
   children: ReactNode;
@@ -27,15 +28,19 @@ export type CoordinateAndDimensions = {
 const Crop = ({ children, onCrop }: Props) => {
   // const [isCropping, setIsCropping] = useState(true);
   const snap = useSnapshot(state);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { height: windowH, width: windowW } = useWindowDimensions() || {};
+
   const [{ x, y, width, height }, api] = useSpring(() => ({
     x: snap.topLeftCropX,
     y: snap.topLeftCropY,
     width: snap.cropWidth,
     height: snap.cropHeight,
   }));
-  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  console.log("container ref", containerRef.current?.clientWidth);
+
   const bottomRightResizerRef = useRef<HTMLDivElement | null>(null);
-  const topLeftResizerRef = useRef<HTMLDivElement | null>(null);
 
   const bind = useDrag(
     (state) => {
@@ -115,6 +120,18 @@ const Crop = ({ children, onCrop }: Props) => {
     state.cropWidth = width.get();
     state.cropHeight = height.get();
   }, [onCrop]);
+
+  // resize to fit different monitor size
+  useEffect(() => {
+    if (!windowW || !windowH) return;
+
+    api.set({
+      x: 0.1 * windowW,
+      y: 0.05 * windowH,
+      width: 0.8 * windowW,
+      height: 0.8 * windowH,
+    });
+  }, [api, windowW, windowH]);
 
   return (
     <div className={styles.container} ref={containerRef}>

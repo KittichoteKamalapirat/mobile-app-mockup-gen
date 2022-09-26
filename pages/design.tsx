@@ -47,6 +47,7 @@ import SvgPreset3 from "../src/components/icons/Preset3";
 import SvgPreset2 from "../src/components/icons/Preset2";
 import LinkButton from "../src/components/Buttons/LinkButton";
 import Crop from "../src/components/Crop";
+import useWindowDimensions from "../functions/src/hooks/useWindowDimensions";
 
 interface Props {}
 
@@ -380,7 +381,7 @@ const ThreeDimension = ({}: Props) => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center cursor-pointer">
                   <CgColorPicker
                     size={ICON_SIZE - 5} // px
                     color={RGBA_WHITE}
@@ -393,7 +394,7 @@ const ThreeDimension = ({}: Props) => {
                   backgroundColor: RGBA_WHITE,
                   borderWidth: "1px",
                 }}
-                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full cursor-pointer ${
                   snap.canvaColor === RGBA_WHITE && !snap.bgIsTransparent
                     ? "border-primary"
                     : "border-grey-200"
@@ -406,7 +407,7 @@ const ThreeDimension = ({}: Props) => {
                   backgroundColor: RGBA_BLACK,
                   borderWidth: "1px",
                 }}
-                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full cursor-pointer ${
                   snap.canvaColor === RGBA_BLACK && !snap.bgIsTransparent
                     ? "border-primary"
                     : "border-grey-200"
@@ -633,7 +634,7 @@ const ThreeDimension = ({}: Props) => {
         style={{ zIndex: 9 }}
       >
         {snap.camera && (
-          <div className="flex items-center gap-4 shadow-xl p-4 m-2 rounded-xl">
+          <div className="flex items-center gap-4 shadow-xl p-4 m-2 rounded-xl bg-grey-0">
             <div>
               <div className="text-lg">Presets</div>
             </div>
