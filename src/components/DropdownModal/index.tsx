@@ -14,7 +14,7 @@ const DropdownModal = ({ children, button, isOpen }: Props) => {
         id="dropdown"
         className={`${
           isOpen ? "block" : "hidden"
-        } absolute px-4 z-10 w-max bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700`}
+        } absolute px-4 z-10 w-max bg-white rounded divide-y divide-gray-100 shadow `}
       >
         {children}
       </div>
