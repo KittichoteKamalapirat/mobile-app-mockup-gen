@@ -41,6 +41,7 @@
 .croppedArea {
   border: 2px dashed #c2c2c2;
   position: absolute;
+  pointer-events: none;
   /* top: 0px; */
   /* left: 0px; */
   /* width: 100px; */
