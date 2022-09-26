@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ClampToEdgeWrapping, Group, TextureLoader } from "three";
 
 import { useSnapshot } from "valtio";
-import { state } from "../../../pages";
+import { state } from "../../../pages/design";
 import placeholder from "../../../public/images/placeholder.png";
 import { PHONE_SCREEN_HEIGHT, PHONE_SCREEN_WIDTH } from "../../constants";
 import { Iphone13ConceptGLTFResult } from "../../types/Iphone13ConceptGLTFResult";

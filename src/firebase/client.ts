@@ -37,6 +37,7 @@ const provider = new GoogleAuthProvider();
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, provider);
+    console.log("reslt", result);
 
     const { email, displayName, photoURL, uid, providerData } = result.user;
 
@@ -47,9 +48,12 @@ export const signInWithGoogle = async () => {
       avatarUrl: photoURL,
       provider: providerData[0].providerId,
     };
+    console.log("new user", newUser);
 
     // const docRef = await addDoc(collection(firestore, "users"), newUser);
     const userRef = doc(firestore, "users", uid);
+
+    console.log("user ref", userRef);
     const docRef = await setDoc(userRef, newUser);
   } catch (error) {
     console.log("error", error);

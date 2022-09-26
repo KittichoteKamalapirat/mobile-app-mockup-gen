@@ -8,7 +8,7 @@ interface Props {
   href?: any;
   leftIcon?: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
   extraClass?: string;
-  type: ButtonTypes;
+  type?: ButtonTypes;
 }
 
 const LinkButton = ({
@@ -17,7 +17,7 @@ const LinkButton = ({
   pathname,
   leftIcon,
   extraClass,
-  type,
+  type = ButtonTypes.PRIMARY,
 }: Props) => {
   return (
     <NextLink href={href || { pathname }} passHref>

@@ -6,7 +6,8 @@ import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
 import { auth, logout } from "../firebase/client";
 import Button, { ButtonTypes } from "./Buttons/Button";
 import Dropdown from "./Dropdown";
-import Login from "./Login";
+import GoogleLogin from "./GoogleLogin";
+import Modal from "./Modal";
 import Tag from "./Tag";
 import PageHeading from "./typography/PageHeading";
 
@@ -16,13 +17,35 @@ const AuthDisplay = ({}: Props) => {
   const [user, userLoading] = useAuthState(auth);
   const userIsPremium = usePremiumStatus(user as User);
 
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+
+  const toggleModal = () => setModalIsOpen(!modalIsOpen);
 
   // loading
   if (!user && userLoading) return <h1>Loading...</h1>;
 
   // no user
-  if (!user && !userLoading) return <Login />;
+  if (!user && !userLoading)
+    return (
+      <div>
+        <Button
+          label="Sign in"
+          onClick={toggleModal}
+          type={ButtonTypes.TEXT}
+          fontColour="text-grey-0"
+        />
+        <Modal
+          contentLabel="Sign in"
+          isOpen={modalIsOpen}
+          onRequestClose={toggleModal}
+          heading={<PageHeading heading="Login to your account" />}
+          minWidth="40%"
+          zIndex={20}
+        >
+          <GoogleLogin />
+        </Modal>
+      </div>
+    );
 
   return (
     <div>
