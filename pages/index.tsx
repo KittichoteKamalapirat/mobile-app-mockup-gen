@@ -18,7 +18,7 @@ const Home: NextPage = () => {
                 customers.
               </h2>
               <LinkButton
-                label="Start Designing For Free"
+                label="Start Designing For Free!"
                 href="/design"
                 extraClass="my-4"
               />

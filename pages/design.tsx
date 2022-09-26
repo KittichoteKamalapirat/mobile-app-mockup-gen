@@ -25,7 +25,7 @@ import { RootState } from "../src/redux/store";
 import { debounce } from "../src/utils/debounce";
 import { inactiveGrey, primaryColor } from "../theme";
 
-import { BiArrowBack } from "react-icons/bi";
+import { BiArrowBack, BiCrop } from "react-icons/bi";
 
 import DropdownModal from "../src/components/DropdownModal";
 import SmallHeading from "../src/components/typography/SmallHeading";
@@ -34,6 +34,10 @@ import {
   DEFAULT_ROTATION_Y,
   DEFAULT_ROTATION_Z,
   ICON_SIZE,
+  INITIAL_CROP_HEIGHT,
+  INITIAL_CROP_TOP_LEFT_X,
+  INITIAL_CROP_TOP_LEFT_Y,
+  INITIAL_CROP_WIDTH,
   RGBA_BLACK,
   RGBA_WHITE,
 } from "../src/constants";
@@ -42,6 +46,7 @@ import SvgPreset4 from "../src/components/icons/Preset4";
 import SvgPreset3 from "../src/components/icons/Preset3";
 import SvgPreset2 from "../src/components/icons/Preset2";
 import LinkButton from "../src/components/Buttons/LinkButton";
+import Crop from "../src/components/Crop";
 
 interface Props {}
 
@@ -60,8 +65,13 @@ interface ProxyState {
   cameraPositionY: number;
   cameraPositionZ: number;
 
-  cameraIsFrozen: boolean;
+  topLeftCropX: number;
+  topLeftCropY: number;
+  cropWidth: number;
+  cropHeight: number;
 
+  cameraIsFrozen: boolean;
+  isCropping: boolean;
   shadowIsOn: boolean;
   glareIsOn: boolean;
   bgIsTransparent: boolean;
@@ -81,7 +91,13 @@ export const state: ProxyState = proxy({
   cameraPositionY: 0,
   cameraPositionZ: 5,
 
+  topLeftCropX: INITIAL_CROP_TOP_LEFT_X,
+  topLeftCropY: INITIAL_CROP_TOP_LEFT_Y,
+  cropWidth: INITIAL_CROP_WIDTH,
+  cropHeight: INITIAL_CROP_HEIGHT,
+
   shadowIsOn: true,
+  isCropping: false,
   bgIsTransparent: false,
   glareIsOn: true,
   camera: null,
@@ -183,41 +199,111 @@ const ThreeDimension = ({}: Props) => {
 
   // create img from canvas
   const handleDownload = () => {
-    const canvas = canvaRef.current as HTMLCanvasElement;
+    // no crop
+    // const canvas = canvaRef.current as HTMLCanvasElement;
 
-    const url = canvas.toDataURL("image/png");
-    const name = upload.name;
+    // const url = canvas.toDataURL("image/png");
+    // const name = upload.name;
 
-    const link = document.createElement("a");
-    link.download = name;
-    link.href = url;
-    link.click();
+    // const link = document.createElement("a");
+    // link.download = name;
+    // link.href = url;
+    // link.click();
+
+    // crop
+    // create an image from url (from canvas)
+    // draw a croppped iamge
+
+    const designCanvas = canvaRef.current as HTMLCanvasElement;
+    const url = designCanvas.toDataURL("image/png");
+
+    const downloadCanvas = document.getElementById(
+      "download"
+    ) as HTMLCanvasElement;
+
+    const uncroppedImg = new Image();
+    uncroppedImg.src = url;
+    console.log("url", url);
+
+    downloadCanvas.width = designCanvas.width; // set canva width the same as image
+    downloadCanvas.height = designCanvas.height;
+
+    const ctx = downloadCanvas.getContext("2d") as CanvasRenderingContext2D;
+
+    console.log(
+      "download",
+      snap.topLeftCropX,
+      snap.topLeftCropY,
+      snap.cropWidth,
+      snap.cropHeight
+    );
+
+    uncroppedImg.onload = function () {
+      console.log("designCanvas.width", designCanvas.width);
+      console.log("designCanvas.height", designCanvas.height);
+      console.log("snap.topLeftCropX", snap.topLeftCropX);
+      console.log("snap.topLeftCropY", snap.topLeftCropY);
+      console.log("snap.cropWidth", snap.cropWidth);
+      console.log("snap.cropHeight", snap.cropHeight);
+      console.log("img width", uncroppedImg.width);
+      console.log("img height", uncroppedImg.height);
+      console.log("img natural  width", uncroppedImg.naturalWidth);
+      console.log("img natural height", uncroppedImg.naturalHeight);
+
+      console.log("loaded");
+      // for some reasons, canvas size is 2 times the pixel on pc
+      ctx.drawImage(
+        uncroppedImg,
+        snap.topLeftCropX * 2,
+        snap.topLeftCropY * 2, // top left grab
+        (snap.topLeftCropX + snap.cropWidth) * 2,
+        (snap.topLeftCropY + snap.cropHeight) * 2, // bottom right grab
+        0,
+        0, // place ลงมาหน่อยเพราะขอบ
+        snap.cropWidth * 2,
+        snap.cropHeight * 2
+      );
+
+      const cropppedUrl = downloadCanvas.toDataURL("image/png");
+
+      const name = upload.name;
+
+      const link = document.createElement("a");
+      console.log("download the image");
+      link.download = name;
+      link.href = cropppedUrl;
+      link.click();
+    };
   };
 
+  const onCrop = () => {};
   return (
     <div className="h-screen relative ">
-      <Canvas
-        ref={canvaRef}
-        style={{
-          height: "100vh",
-          zIndex: 1,
-        }}
-        gl={{ preserveDrawingBuffer: true }}
-        camera={{
-          rotation: [
-            snap.cameraRotationX,
-            snap.cameraRotationY,
-            snap.cameraRotationZ,
-          ],
-          position: [
-            snap.cameraPositionX,
-            snap.cameraPositionY,
-            snap.cameraPositionZ,
-          ],
-        }}
-      >
-        <Scene upload={upload} />
-      </Canvas>
+      <Crop onCrop={onCrop}>
+        <Canvas
+          ref={canvaRef}
+          style={{
+            height: "100vh",
+            // width: "100vh",
+            zIndex: 1,
+          }}
+          gl={{ preserveDrawingBuffer: true }}
+          camera={{
+            rotation: [
+              snap.cameraRotationX,
+              snap.cameraRotationY,
+              snap.cameraRotationZ,
+            ],
+            position: [
+              snap.cameraPositionX,
+              snap.cameraPositionY,
+              snap.cameraPositionZ,
+            ],
+          }}
+        >
+          <Scene upload={upload} />
+        </Canvas>
+      </Crop>
 
       <div id="fixed-side-bar" className="absolute top-0 h-screen z-10 ">
         <div
@@ -235,6 +321,7 @@ const ThreeDimension = ({}: Props) => {
                 />
               }
               type={ButtonTypes.TEXT}
+              extraClass="text-grey-300"
             />
 
             <DropzoneField
@@ -257,7 +344,7 @@ const ThreeDimension = ({}: Props) => {
             </DropzoneField>
 
             {upload.presignedUrl && (
-              <div className="w-10 h-10 border-1 border-grey-200 border-solid rounded-sm overflow-scroll">
+              <div className="w-8 h-8 border-1 border-grey-200 border-solid rounded-sm overflow-scroll">
                 <img
                   id="phone"
                   src={upload.presignedUrl}
@@ -281,7 +368,7 @@ const ThreeDimension = ({}: Props) => {
                   backgroundColor: snap.canvaColor,
                   borderWidth: "1px",
                 }}
-                className="w-10 h-10 my-2 border-grey-200 border-solid rounded-full box-content"
+                className="w-8 h-8 my-2 border-grey-200 border-solid rounded-full box-content"
                 onClick={() => setColorPickerIsOpen(true)}
               >
                 {colorPickerIsOpen && (
@@ -306,7 +393,7 @@ const ThreeDimension = ({}: Props) => {
                   backgroundColor: RGBA_WHITE,
                   borderWidth: "1px",
                 }}
-                className={`w-10 h-10 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full ${
                   snap.canvaColor === RGBA_WHITE && !snap.bgIsTransparent
                     ? "border-primary"
                     : "border-grey-200"
@@ -319,7 +406,7 @@ const ThreeDimension = ({}: Props) => {
                   backgroundColor: RGBA_BLACK,
                   borderWidth: "1px",
                 }}
-                className={`w-10 h-10 my-2 border-2 border-grey-200 border-solid rounded-full ${
+                className={`w-8 h-8 my-2 border-2 border-grey-200 border-solid rounded-full ${
                   snap.canvaColor === RGBA_BLACK && !snap.bgIsTransparent
                     ? "border-primary"
                     : "border-grey-200"
@@ -504,12 +591,27 @@ const ThreeDimension = ({}: Props) => {
                   <p className="text-primary text-sm">Center</p>
                 </div>
               </div>
+
+              <div
+                id="crop"
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => {
+                  state.isCropping = !Boolean(snap.isCropping);
+                }}
+              >
+                <BiCrop
+                  size={ICON_SIZE} // px
+                  color={!snap.isCropping ? inactiveGrey : primaryColor}
+                />
+
+                <p className="text-primary text-sm">Center</p>
+              </div>
             </div>
           </div>
 
           <div id="download-section">
             <div
-              className="flex-col items-center cursor-pointer"
+              className="flex flex-col items-center cursor-pointer"
               onClick={handleDownload}
             >
               <IoMdDownload
@@ -522,6 +624,8 @@ const ThreeDimension = ({}: Props) => {
           </div>
         </div>
       </div>
+
+      <canvas id="download" className="hidden"></canvas>
 
       <div
         id="fixed-bottom-bar"

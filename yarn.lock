@@ -1265,6 +1265,16 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.5.4.tgz#6d26df992a32ea5532a1e7b732f5485857116b00"
   integrity sha512-dzcGxqL1kPKociXK+pcq5ley77cWDWiphfv8OREv8dAZS1dKDTJq1zVy7ZD5ocyMtKMZw/7AcOdIJ1H80Dp56g==
 
+"@react-spring/web@^9.5.4":
+  version "9.5.4"
+  resolved "https://registry.yarnpkg.com/@react-spring/web/-/web-9.5.4.tgz#ea46780761deb4c5a42dcc9745c2a121f8229a66"
+  integrity sha512-HoypE3kL/ZUBB81hThE1hB9jYBgJmfeluEOPYoI/wGHyF1q8O0AYpWClvdAbiK3FTESHYZi2m60jwitF7VYUlQ==
+  dependencies:
+    "@react-spring/animated" "~9.5.4"
+    "@react-spring/core" "~9.5.4"
+    "@react-spring/shared" "~9.5.4"
+    "@react-spring/types" "~9.5.4"
+
 "@react-three/drei@^9.31.1":
   version "9.31.1"
   resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.31.1.tgz#d11ce2760b2099ecb9e756c2decb62b58086ebeb"
