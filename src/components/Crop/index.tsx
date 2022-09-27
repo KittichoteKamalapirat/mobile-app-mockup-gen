@@ -123,6 +123,7 @@ const Crop = ({ children, onCrop }: Props) => {
 
   // resize to fit different monitor size
   useEffect(() => {
+    // TODO download popup triggers this too, so remove windowH from dependency for now
     if (!windowW || !windowH) return;
 
     api.set({
@@ -131,7 +132,7 @@ const Crop = ({ children, onCrop }: Props) => {
       width: 0.8 * windowW,
       height: 0.8 * windowH,
     });
-  }, [api, windowW, windowH]);
+  }, [windowW]);
 
   return (
     <div className={styles.container} ref={containerRef}>
