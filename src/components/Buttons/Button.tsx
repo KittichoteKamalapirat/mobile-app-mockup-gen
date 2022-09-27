@@ -2,6 +2,7 @@ import Link from "next/link";
 
 export enum ButtonTypes {
   PRIMARY = "primary",
+  ACTION = "action",
   SECONDARY = "secondary",
   OUTLINED = "outlined",
   TEXT = "text",
@@ -57,7 +58,7 @@ const useClassName = ({
   extraClass,
   height,
 }: ClassProps) => {
-  const commonClass = `${fontSize} ${height} ${spacing} ${borderRadius} ${extraClass} ${
+  const commonClass = `no-underline px-4 py-2 rounded-md ${fontSize} ${height} ${spacing} ${borderRadius} ${extraClass} ${
     disabled ? "opacity-50 cursor-not-allowed" : ""
   }`;
   const borderClass = `${borderColour} ${borderWidth}`;
@@ -72,9 +73,12 @@ const useClassName = ({
     case ButtonTypes.TEXT:
       return `${fontColour} hover:text-blurple-hovered text-15px underline px-0 ${commonClass}`;
 
+    case ButtonTypes.ACTION:
+      return `bg-action hover:bg-blurple-hovered text-white ${commonClass}`;
+
     case ButtonTypes.PRIMARY:
     default:
-      return `bg-blurple-link hover:bg-blurple-hovered text-white ${commonClass}`;
+      return `bg-primary hover:bg-blurple-hovered text-white ${commonClass}`;
   }
 };
 
@@ -143,10 +147,10 @@ Button.defaultProps = {
   buttonType: HTMLButtonType.BUTTON,
   disabled: false,
   borderRadius: "rounded-5px",
-  borderColour: "border-blurple-link",
+  borderColour: "border-primary",
   borderWidth: "border",
   fontSize: "text-13px",
-  fontColour: "text-blurple-link",
+  fontColour: "text-primary",
 };
 
 export default Button;

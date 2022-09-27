@@ -11,7 +11,7 @@ describe("Button", () => {
     const link = screen.queryByRole("link", { name: label });
     expect(button).toBeInTheDocument();
     expect(link).not.toBeInTheDocument();
-    expect(button).toHaveClass("bg-blurple-link text-white", { exact: false });
+    expect(button).toHaveClass("bg-primary text-white", { exact: false });
   });
 
   test("renders the filled button component", () => {
@@ -22,7 +22,7 @@ describe("Button", () => {
     const link = screen.queryByRole("link", { name: label });
     expect(button).toBeInTheDocument();
     expect(link).not.toBeInTheDocument();
-    expect(button).toHaveClass("bg-blurple-link text-white", { exact: false });
+    expect(button).toHaveClass("bg-primary text-white", { exact: false });
   });
 
   test("renders linked button component", () => {
@@ -33,6 +33,6 @@ describe("Button", () => {
     const link = screen.getByRole("link", { name: label });
     expect(button).toBeInTheDocument();
     expect(link).toBeInTheDocument();
-    expect(button).toHaveClass("bg-blurple-link text-white", { exact: false });
+    expect(button).toHaveClass("bg-primary text-white", { exact: false });
   });
 });

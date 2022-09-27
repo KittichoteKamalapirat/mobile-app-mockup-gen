@@ -1,37 +1,20 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import { firebaseReducer, FirebaseReducer } from "react-redux-firebase";
-import { firestoreReducer } from "redux-firestore";
-import authReducer, { CurrentUser } from "./slices/authReducer";
-import postsReducer, { Post } from "./slices/postsReducer";
+import mockupReducer from "./slices/mockupReducer";
+import postsReducer from "./slices/postsReducer";
+import uploadReducer from "./slices/uploadReducer";
 
-// interface Profile {
-//   name: string;
-//   email: string;
-// }
-
-interface Schema {
-  post: Post[];
-}
-
-interface RootState {
-  firebase: FirebaseReducer.Reducer<{}, Schema>;
-  posts: Post[];
-  auth: CurrentUser;
-  firestore: any;
-}
-
-const rootReducer = combineReducers<RootState>({
-  posts: postsReducer,
-  auth: authReducer,
-  firebase: firebaseReducer,
-  firestore: firestoreReducer,
-});
-
+// ...
 const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    posts: postsReducer,
+    upload: uploadReducer,
+    mockups: mockupReducer,
+  },
 });
 
+// console.log("store", store);
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export const useAppDispatch: () => AppDispatch = useDispatch; // Export a hook that can be reused to resolve types
 

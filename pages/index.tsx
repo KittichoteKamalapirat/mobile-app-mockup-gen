@@ -1,43 +1,42 @@
-import type { NextPage } from "next";
-import { firestoreConnect } from "react-redux-firebase";
-
+/* eslint-disable @next/next/no-img-element */
 import "firebase/compat/firestore";
-import { connect, useSelector } from "react-redux";
-import { useFirestoreConnect } from "react-redux-firebase";
-import { compose } from "redux";
-import CreatePost from "../src/components/CreatePost";
+
+import type { NextPage } from "next";
+import LinkButton from "../src/components/Buttons/LinkButton";
 import Layout from "../src/components/layouts/Layout";
-import { Post } from "../src/redux/slices/postsReducer";
 
 const Home: NextPage = () => {
-  // const posts = useSelector((state) => state.posts);
-  useFirestoreConnect(["posts"]); // sync posts collection from Firestore into redux
-  const posts = useSelector((state) => state.firestore.data.posts);
-
   return (
     <Layout>
-      <main className="flex-col items-center justify-center ">
-        <div>
-          {posts?.map((post: Post) => (
-            <div key={post.id}>
-              <h2 className="text-xl text-primary">{post.title}</h2>
-              <p>{post.body}</p>
+      <main className="flex-col items-center justify-center h-screen">
+        <div id="container" className="flex items-center h-5/6">
+          <div id="left" className="my-auto flex-1">
+            <div>
+              <h1 className="text-3xl font-bold">
+                Create beautiful mobile mockups <br /> in seconds.
+              </h1>
+              <h2 className="text-xl">
+                Showcase your app with our iPhone mockups and get more
+                customers.
+              </h2>
+              <LinkButton
+                label="Start Designing For Free!"
+                href="/design"
+                extraClass="my-4"
+              />
             </div>
-          ))}
-        </div>
+          </div>
 
-        <CreatePost />
+          <div id="right" className="flex-1">
+            <img
+              id="phone"
+              src="/images/hero.png"
+              alt="hero"
+              className={`w-3/4 my-auto`}
+            />
+          </div>
+        </div>
       </main>
     </Layout>
   );
 };
-
-// export default firestoreConnect([{ collection: "posts" }])(Home);
-export default compose(
-  firestoreConnect(() => ["posts"]), // or { collection: 'todos' }
-  connect((state, props) => {
-    return {
-      posts: state.firestore.ordered.posts,
-    };
-  })
-)(Home);
