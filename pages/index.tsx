@@ -1,6 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import "firebase/compat/firestore";
-
 import type { NextPage } from "next";
 import LinkButton from "../src/components/Buttons/LinkButton";
 import Layout from "../src/components/layouts/Layout";
@@ -40,3 +38,5 @@ const Home: NextPage = () => {
     </Layout>
   );
 };
+
+export default Home;
