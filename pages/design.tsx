@@ -6,6 +6,8 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
 import { GiStripedSun } from "react-icons/gi";
 import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
+import { BsArrowDownUp } from "react-icons/bs";
+
 import { CgColorPicker } from "react-icons/cg";
 
 import { IoMdDownload } from "react-icons/io";
@@ -38,8 +40,11 @@ import {
   INITIAL_CROP_TOP_LEFT_X,
   INITIAL_CROP_TOP_LEFT_Y,
   INITIAL_CROP_WIDTH,
+  INITIAL_SHADOW_POSITION_Y,
   RGBA_BLACK,
   RGBA_WHITE,
+  SHADOW_POSITION_Y_MIN,
+  SHADOW_POSITION_Y_MAX,
 } from "../src/constants";
 import SvgPreset1 from "../src/components/icons/Preset1";
 import SvgPreset4 from "../src/components/icons/Preset4";
@@ -80,6 +85,8 @@ interface ProxyState {
   objectRotationX: number;
   objectRotationY: number;
   objectRotationZ: number;
+
+  shadowPositionY: number;
 }
 export const state: ProxyState = proxy({
   canvaColor: "rgba(255,255,255,1)",
@@ -106,6 +113,8 @@ export const state: ProxyState = proxy({
   objectRotationX: DEFAULT_ROTATION_X,
   objectRotationY: DEFAULT_ROTATION_Y,
   objectRotationZ: DEFAULT_ROTATION_Z,
+
+  shadowPositionY: INITIAL_SHADOW_POSITION_Y,
 });
 
 const ThreeDimension = ({}: Props) => {
@@ -117,6 +126,7 @@ const ThreeDimension = ({}: Props) => {
 
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
   const [objectDropdownIsOpen, setObjectDropdownIsOpen] = useState(false);
+  const [shadowDropdownIsOpen, setShadowDropdownIsOpen] = useState(false);
 
   const closeColorPicker = useCallback(() => setColorPickerIsOpen(false), []);
   const closeRotateObjectDropdown = useCallback(
@@ -558,6 +568,44 @@ const ThreeDimension = ({}: Props) => {
                 </DropdownModal>
               </div>
 
+              {/* Drop shadow position */}
+              <div>
+                <DropdownModal
+                  isOpen={shadowDropdownIsOpen}
+                  button={
+                    <div
+                      className="flex flex-col items-center cursor-pointer"
+                      onClick={() =>
+                        setShadowDropdownIsOpen(!shadowDropdownIsOpen)
+                      }
+                    >
+                      <BsArrowDownUp
+                        size={ICON_SIZE - 4} // px
+                        color={primaryColor}
+                      />
+                      <p className="text-primary text-sm">Shadow</p>
+                    </div>
+                  }
+                >
+                  <Range
+                    label={
+                      <BsArrowDownUp
+                        size={ICON_SIZE - 10} // px
+                        color={primaryColor}
+                      />
+                    }
+                    value={snap.shadowPositionY}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.shadowPositionY = parseFloat(e.target.value);
+                    }}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      state.shadowPositionY = parseFloat(e.target.value);
+                    }}
+                    min={SHADOW_POSITION_Y_MIN}
+                    max={SHADOW_POSITION_Y_MAX}
+                  />
+                </DropdownModal>
+              </div>
               <div
                 id="camera-editor-section"
                 className="w-full flex flex-col items-center"
@@ -605,7 +653,7 @@ const ThreeDimension = ({}: Props) => {
                   color={!snap.isCropping ? inactiveGrey : primaryColor}
                 />
 
-                <p className="text-primary text-sm">Center</p>
+                <p className="text-primary text-sm">Crop</p>
               </div>
             </div>
           </div>
@@ -745,7 +793,7 @@ const Scene = ({ upload }: SceneProps) => {
         <group position={[0, 0, 0]}>
           {snap.shadowIsOn && (
             <ContactShadows
-              position={[0, -1.66, 0]}
+              position={[0, snap.shadowPositionY, 0]}
               opacity={1}
               scale={10}
               blur={4}

@@ -16,3 +16,7 @@ export const INITIAL_CROP_TOP_LEFT_X = 120;
 export const INITIAL_CROP_TOP_LEFT_Y = 10;
 export const INITIAL_CROP_WIDTH = 1200;
 export const INITIAL_CROP_HEIGHT = 700;
+
+export const INITIAL_SHADOW_POSITION_Y = -1.66;
+export const SHADOW_POSITION_Y_MAX = 0;
+export const SHADOW_POSITION_Y_MIN = -3;
