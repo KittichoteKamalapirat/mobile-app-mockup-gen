@@ -11,10 +11,15 @@ declare global {
       CLOUDINARY_GET_URL: string;
       CLOUDINARY_API_KEY: string;
       CLOUDINARY_API_SECRET: string;
-      STRIPE_API_KEY: string;
-      STRIPE_API_SECRET: string;
+      STRIPE_API_KEY_LIVE: string;
+      STRIPE_API_SECRET_LIVE: string;
+      STRIPE_PRODUCT_ID_LIVE: string;
+      NEXT_PUBLIC_STRIPE_API_KEY: string;
+      NEXT_PUBLIC_STRIPE_API_SECRET: string;
+      NEXT_PUBLIC_STRIPE_PRODUCT_ID: string;
+      NEXT_PUBLIC_STRIPE_RESTRICTED_KEY: string;
     }
   }
 }
 
-export {};
+export {}
