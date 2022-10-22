@@ -4,9 +4,9 @@ import { Canvas, useThree } from "@react-three/fiber";
 import gsap from "gsap";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
+import { BsArrowDownUp } from "react-icons/bs";
 import { GiStripedSun } from "react-icons/gi";
 import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
-import { BsArrowDownUp } from "react-icons/bs";
 
 import { CgColorPicker } from "react-icons/cg";
 
@@ -17,19 +17,27 @@ import { useSelector } from "react-redux";
 import rgbaToRgb from "rgba-to-rgb";
 import { Camera } from "three";
 import { proxy, useSnapshot } from "valtio";
-import useClickOutside from "../src/hooks/useClickOutside";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
 import DiagonalLine from "../src/components/DiagonalLine";
 import DropzoneField, { UploadedFile } from "../src/components/DropzoneField";
 import Range from "../src/components/Range";
+import useClickOutside from "../src/hooks/useClickOutside";
 import { RootState } from "../src/redux/store";
 import { debounce } from "../src/utils/debounce";
 import { inactiveGrey, primaryColor } from "../theme";
 
 import { BiArrowBack, BiCrop } from "react-icons/bi";
 
+import { User } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+import LinkButton from "../src/components/Buttons/LinkButton";
+import Crop from "../src/components/Crop";
 import DropdownModal from "../src/components/DropdownModal";
+import SvgPreset1 from "../src/components/icons/Preset1";
+import SvgPreset2 from "../src/components/icons/Preset2";
+import SvgPreset3 from "../src/components/icons/Preset3";
+import SvgPreset4 from "../src/components/icons/Preset4";
 import SmallHeading from "../src/components/typography/SmallHeading";
 import {
   DEFAULT_ROTATION_X,
@@ -43,16 +51,12 @@ import {
   INITIAL_SHADOW_POSITION_Y,
   RGBA_BLACK,
   RGBA_WHITE,
-  SHADOW_POSITION_Y_MIN,
   SHADOW_POSITION_Y_MAX,
+  SHADOW_POSITION_Y_MIN,
 } from "../src/constants";
-import SvgPreset1 from "../src/components/icons/Preset1";
-import SvgPreset4 from "../src/components/icons/Preset4";
-import SvgPreset3 from "../src/components/icons/Preset3";
-import SvgPreset2 from "../src/components/icons/Preset2";
-import LinkButton from "../src/components/Buttons/LinkButton";
-import Crop from "../src/components/Crop";
-import useWindowDimensions from "../src/hooks/useWindowDimensions";
+import { auth } from "../src/firebase/client";
+import usePremiumStatus from "../src/hooks/usePremiumStatus";
+import Tag from "../src/components/Tag";
 
 interface Props {}
 
@@ -121,8 +125,8 @@ const ThreeDimension = ({}: Props) => {
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
 
   const snap = useSnapshot(state);
-
-  console.log("snap", snap.canvaColor);
+  const [user, userLoading] = useAuthState(auth);
+  const userIsPremium = usePremiumStatus(user as User);
 
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
   const [objectDropdownIsOpen, setObjectDropdownIsOpen] = useState(false);
@@ -135,8 +139,10 @@ const ThreeDimension = ({}: Props) => {
   );
 
   const toggleShadow = () => (state.shadowIsOn = !state.shadowIsOn);
-  const toggleTransparentBg = () =>
-    (state.bgIsTransparent = !state.bgIsTransparent);
+  const toggleTransparentBg = () => {
+    if (!userIsPremium) return;
+    state.bgIsTransparent = !state.bgIsTransparent;
+  };
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
@@ -234,34 +240,13 @@ const ThreeDimension = ({}: Props) => {
 
     const uncroppedImg = new Image();
     uncroppedImg.src = url;
-    console.log("url", url);
 
     downloadCanvas.width = designCanvas.width; // set canva width the same as image
     downloadCanvas.height = designCanvas.height;
 
     const ctx = downloadCanvas.getContext("2d") as CanvasRenderingContext2D;
 
-    console.log(
-      "download",
-      snap.topLeftCropX,
-      snap.topLeftCropY,
-      snap.cropWidth,
-      snap.cropHeight
-    );
-
     uncroppedImg.onload = function () {
-      console.log("designCanvas.width", designCanvas.width);
-      console.log("designCanvas.height", designCanvas.height);
-      console.log("snap.topLeftCropX", snap.topLeftCropX);
-      console.log("snap.topLeftCropY", snap.topLeftCropY);
-      console.log("snap.cropWidth", snap.cropWidth);
-      console.log("snap.cropHeight", snap.cropHeight);
-      console.log("img width", uncroppedImg.width);
-      console.log("img height", uncroppedImg.height);
-      console.log("img natural  width", uncroppedImg.naturalWidth);
-      console.log("img natural height", uncroppedImg.naturalHeight);
-
-      console.log("loaded");
       // for some reasons, canvas size is 2 times the pixel on pc
       ctx.drawImage(
         uncroppedImg,
@@ -280,7 +265,7 @@ const ThreeDimension = ({}: Props) => {
       const name = upload.name;
 
       const link = document.createElement("a");
-      console.log("download the image");
+
       link.download = name;
       link.href = cropppedUrl;
       link.click();
@@ -373,6 +358,7 @@ const ThreeDimension = ({}: Props) => {
             >
               <SmallHeading heading="BG" extraClass="text-left w-full" />
               <hr className="border-1 border-grey-100 border-solid my-1 w-full" />
+              {/* color picker starts*/}
               <div
                 style={{
                   backgroundClip: "content-box",
@@ -380,8 +366,18 @@ const ThreeDimension = ({}: Props) => {
                   borderWidth: "1px",
                 }}
                 className="w-8 h-8 my-2 border-grey-200 border-solid rounded-full box-content"
-                onClick={() => setColorPickerIsOpen(true)}
+                onClick={() =>
+                  userIsPremium ? setColorPickerIsOpen(true) : undefined
+                }
               >
+                {!userIsPremium && (
+                  <Tag
+                    content="Pro"
+                    color="text-grey-0"
+                    size="sm"
+                    extraClass="ml-auto bg-yellow absolute z-10 ml-6"
+                  />
+                )}
                 {colorPickerIsOpen && (
                   <div ref={colorPickerRef} className="my-2 absolute z-50">
                     <RgbaStringColorPicker
@@ -398,6 +394,7 @@ const ThreeDimension = ({}: Props) => {
                   />
                 </div>
               </div>
+              {/* color picker ends */}
 
               <div
                 style={{
@@ -429,6 +426,15 @@ const ThreeDimension = ({}: Props) => {
                 className={`flex-col items-center cursor-pointer `}
                 onClick={toggleTransparentBg}
               >
+                {!userIsPremium && (
+                  <Tag
+                    content="Pro"
+                    color="text-grey-0"
+                    size="sm"
+                    extraClass="ml-auto bg-yellow absolute z-10 ml-6"
+                  />
+                )}
+
                 <DiagonalLine isActive={snap.bgIsTransparent} />
               </div>
               <div
@@ -645,9 +651,18 @@ const ThreeDimension = ({}: Props) => {
                 id="crop"
                 className="flex flex-col items-center cursor-pointer"
                 onClick={() => {
+                  if (!userIsPremium) return;
                   state.isCropping = !Boolean(snap.isCropping);
                 }}
               >
+                {!userIsPremium && (
+                  <Tag
+                    content="Pro"
+                    color="text-grey-0"
+                    size="sm"
+                    extraClass="ml-auto bg-yellow absolute z-10 ml-6"
+                  />
+                )}
                 <BiCrop
                   size={ICON_SIZE} // px
                   color={!snap.isCropping ? inactiveGrey : primaryColor}
@@ -747,8 +762,6 @@ const ThreeDimension = ({}: Props) => {
 
 export default ThreeDimension;
 
-const deg2rad = (degrees: number) => degrees * (Math.PI / 180);
-
 interface SceneProps {
   upload: UploadedFile;
 }
@@ -772,10 +785,6 @@ const Scene = ({ upload }: SceneProps) => {
           state.cameraPositionX = camera.position.x;
           state.cameraPositionY = camera.position.y;
           state.cameraPositionZ = camera.position.z;
-
-          console.log("x", camera.position.x);
-          console.log("y", camera.position.y);
-          console.log("z", camera.position.z);
         }, 200)}
       />
       <ambientLight intensity={1.5} position={[-2, 5, 10]} />

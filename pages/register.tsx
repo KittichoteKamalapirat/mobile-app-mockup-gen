@@ -1,12 +1,10 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "../src/components/Buttons/Button";
+import LinkButton from "../src/components/Buttons/LinkButton";
 import Layout from "../src/components/layouts/Layout";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { auth } from "../src/firebase/config";
+import { auth } from "../src/firebase/client";
 
 enum FormNames {
   USERNAME = "username",
@@ -33,7 +31,8 @@ const defaultValues: FormValues = {
   password: "",
   confirmPassword: "",
 };
-const Register = ({ navigation }: Props) => {
+
+const Register = () => {
   console.log("register screen");
   const [passwordIsShown, setPasswordIsShown] = useState(false);
 
@@ -129,7 +128,7 @@ const Register = ({ navigation }: Props) => {
 
         <div className="flex-row justify-center mt-2">
           <p>Already have an account? </p>
-          <Button label="Log in" onClick={() => navigation.navigate("Login")} />
+          <LinkButton label="Log in" href="/login" />
         </div>
       </div>
     </Layout>

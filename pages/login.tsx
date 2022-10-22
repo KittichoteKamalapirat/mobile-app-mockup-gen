@@ -3,6 +3,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "../src/components/Buttons/Button";
 import Layout from "../src/components/layouts/Layout";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import LinkButton from "../src/components/Buttons/LinkButton";
 
 enum FormNames {
   EMAIL = "email",
@@ -23,7 +24,7 @@ const defaultValues: FormValues = {
   password: "",
 };
 
-const Register = ({ navigation }: Props) => {
+const Register = () => {
   console.log("register screen");
   const [passwordIsShown, setPasswordIsShown] = useState(false);
 
@@ -97,8 +98,8 @@ const Register = ({ navigation }: Props) => {
         </div>
 
         <div className="flex-row justify-center mt-2">
-          <p>Already have an account? </p>
-          <Button label="Log in" onClick={() => navigation.navigate("Login")} />
+          <p>Don&apos;t have an account?</p>
+          <LinkButton label="Sign up" href="/register" />
         </div>
       </div>
     </Layout>

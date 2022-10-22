@@ -1,9 +1,7 @@
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { firebaseConfig } from "../firebase/config";
 import { createPost } from "../redux/slices/postsReducer";
-import { useFirebase } from "react-redux-firebase";
 
 interface Props {}
 
@@ -26,7 +24,6 @@ const defaultValues = {
 FormNames;
 const CreatePost = ({}: Props) => {
   const dispatch = useDispatch();
-  const firebase = useFirebase();
 
   const {
     register,

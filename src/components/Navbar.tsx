@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -21,7 +22,15 @@ const Navbar = ({}: Props) => {
         <div className="flex">
           {/* <div className="mr-4">logo image</div> */}
           <Link className="text-xl" href="/">
-            {brandName}
+            <div className="flex gap-2 items-center">
+              <Image
+                src="/images/white-logo.png"
+                alt="Logo"
+                width={30}
+                height={30}
+              />
+              <div>{brandName}</div>
+            </div>
           </Link>
         </div>
         <div>

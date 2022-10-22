@@ -5,8 +5,6 @@ import store from "../src/redux/store";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  console.log(process.env);
-  console.log("test");
   return (
     <Provider store={store}>
       <CloudinaryContext cloudName="mockx">

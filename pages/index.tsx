@@ -1,9 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
+
+import { User } from "firebase/auth";
 import type { NextPage } from "next";
+import { useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import LinkButton from "../src/components/Buttons/LinkButton";
 import Layout from "../src/components/layouts/Layout";
+import { auth } from "../src/firebase/client";
+import usePremiumStatus from "../src/hooks/usePremiumStatus";
 
 const Home: NextPage = () => {
+  const [user, userLoading] = useAuthState(auth);
+  const userIsPremium = usePremiumStatus(user as User);
+
   return (
     <Layout>
       <main className="flex-col items-center justify-center h-screen">
