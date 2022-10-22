@@ -2,7 +2,7 @@ import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import useWindowDimensions from "../../../functions/src/hooks/useWindowDimensions";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 import { state } from "../../../pages/design";
 import Button from "../Buttons/Button";
 import styles from "./index.module.css";

@@ -1,8 +1,8 @@
 import { User } from "firebase/auth";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { createCheckoutSession } from "../../functions/src/stripe/createCheckoutSession";
-import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
+import { createCheckoutSession } from "../stripe/createCheckoutSession";
+import usePremiumStatus from "../hooks/usePremiumStatus";
 import { auth, logout } from "../firebase/client";
 import Button, { ButtonTypes } from "./Buttons/Button";
 import Dropdown from "./Dropdown";

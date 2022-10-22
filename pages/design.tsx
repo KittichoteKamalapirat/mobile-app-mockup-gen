@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import rgbaToRgb from "rgba-to-rgb";
 import { Camera } from "three";
 import { proxy, useSnapshot } from "valtio";
-import useClickOutside from "../functions/src/hooks/useClickOutside";
+import useClickOutside from "../src/hooks/useClickOutside";
 import Iphone13Concept from "../src/components/3d/Iphone13Concept";
 import Button, { ButtonTypes } from "../src/components/Buttons/Button";
 import DiagonalLine from "../src/components/DiagonalLine";
@@ -52,7 +52,7 @@ import SvgPreset3 from "../src/components/icons/Preset3";
 import SvgPreset2 from "../src/components/icons/Preset2";
 import LinkButton from "../src/components/Buttons/LinkButton";
 import Crop from "../src/components/Crop";
-import useWindowDimensions from "../functions/src/hooks/useWindowDimensions";
+import useWindowDimensions from "../src/hooks/useWindowDimensions";
 
 interface Props {}
 

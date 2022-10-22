@@ -2,7 +2,7 @@ import { User } from "firebase/auth";
 import { useCallback, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
-import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
+import usePremiumStatus from "../hooks/usePremiumStatus";
 import { auth } from "../firebase/client";
 import { createMockup, Mockup } from "../redux/slices/mockupReducer";
 import { RootState } from "../redux/store";

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
-import { firestore } from "../../../src/firebase/client";
+import { firestore } from "../firebase/client";
 
 export const createCheckoutSession = async (uid: string) => {
   try {
@@ -11,16 +11,12 @@ export const createCheckoutSession = async (uid: string) => {
       cancel_url: window.location.origin,
     };
     // Create a new checkout session in the subcollection inside this users document
-
     const collectionRef = collection(
       firestore,
       "users",
       uid,
       "checkout_sessions"
     );
-    // await addDoc(collection(firestore, "users", uid), {
-    //   checkout_session: newCheckoutRef,
-    // });
 
     console.log("proces env", process.env);
     console.log("uid", uid);
@@ -29,14 +25,6 @@ export const createCheckoutSession = async (uid: string) => {
     console.log("newCheckoutSession", newCheckoutSession);
 
     const docRef = await addDoc(collectionRef, newCheckoutSession);
-
-    //   await setDoc(
-    //     doc(firestore, "users", uid),
-    //     {
-    //       checkout_session: newCheckoutSession,
-    //     },
-    //     { merge: true }
-    //   );
 
     console.log("2");
 

@@ -1,4 +1,4 @@
-import { auth } from "../../../src/firebase/client";
+import { auth } from "../firebase/client";
 
 const isUserPremium = async (): Promise<boolean> => {
   await auth.currentUser?.getIdToken(true);

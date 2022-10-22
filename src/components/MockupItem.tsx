@@ -1,7 +1,7 @@
 import { User } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import usePremiumStatus from "../../functions/src/stripe/usePremiumStatus";
+import usePremiumStatus from "../hooks/usePremiumStatus";
 import { brandName } from "../constants/brand";
 import { auth } from "../firebase/client";
 import { Mockup } from "../redux/slices/mockupReducer";

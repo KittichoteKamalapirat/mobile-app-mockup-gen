@@ -2,7 +2,7 @@ import { User } from "firebase/auth";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import usePremiumStatus from "../functions/src/stripe/usePremiumStatus";
+import usePremiumStatus from "../src/hooks/usePremiumStatus";
 import Button from "../src/components/Buttons/Button";
 import Layout from "../src/components/layouts/Layout";
 import { Loading } from "../src/components/Loading";
