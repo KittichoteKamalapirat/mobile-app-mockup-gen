@@ -2,11 +2,11 @@
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { firestore } from "../firebase/client";
 
-export const createCheckoutSession = async (uid: string) => {
+export const createCheckoutSession = async (userUId: string) => {
   try {
     const newCheckoutRef = collection(firestore, "checkout_sessions");
     const newCheckoutSession = {
-      price: process.env.STRIPE_PRODUCT_ID,
+      price: process.env.NEXT_PUBLIC_STRIPE_PRODUCT_ID,
       success_url: window.location.origin,
       cancel_url: window.location.origin,
     };
@@ -14,12 +14,12 @@ export const createCheckoutSession = async (uid: string) => {
     const collectionRef = collection(
       firestore,
       "users",
-      uid,
+      userUId,
       "checkout_sessions"
     );
 
     console.log("proces env", process.env);
-    console.log("uid", uid);
+    console.log("userUId", userUId);
 
     console.log("1");
     console.log("newCheckoutSession", newCheckoutSession);

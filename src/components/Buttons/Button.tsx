@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Spinner from "../Spinner";
 
 export enum ButtonTypes {
   PRIMARY = "primary",
@@ -31,6 +32,7 @@ interface Props {
   fontSize: string;
   startIcon?: React.ReactNode;
   fontColour: string;
+  loading?: boolean;
 }
 
 interface ClassProps {
@@ -99,6 +101,7 @@ const Button = ({
   borderWidth,
   startIcon,
   fontColour,
+  loading,
 }: Props) => {
   const className = useClassName({
     type,
@@ -123,6 +126,7 @@ const Button = ({
       aria-label={ariaLabel ?? label}
     >
       <div className="flex flex-row items-center justify-center">
+        {loading && <Spinner size={4} color="yellow" />}
         {startIcon && <div className="mr-2.5">{startIcon}</div>}
         {label}
       </div>

@@ -1,5 +1,11 @@
-import React from "react";
+import { User } from "firebase/auth";
+import { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, openCustomerPortal } from "../firebase/client";
+import usePremiumStatus from "../hooks/usePremiumStatus";
+import { createCheckoutSession } from "../stripe/createCheckoutSession";
 import Button from "./Buttons/Button";
+import LoginModal from "./LoginModal";
 
 interface Props {}
 
@@ -11,28 +17,71 @@ interface Plan {
   description: string;
   price: number;
   features: string[];
+  action: () => void;
+  actionLabel: string;
 }
 
-const plans: Plan[] = [
-  {
-    name: "Free",
-    description:
-      "Best option for personal use that does not require much customization",
-    price: 0,
-    features: ["10 free mockups/month"],
-  },
-  {
-    name: "Premium",
-    description: "Best if you need unlimited mockups and customization",
-    price: 0.99,
-    features: [
-      "Unlimited mockups",
-      "Customization such as background color and transparent background",
-    ],
-  },
-];
-
 const Pricing = ({}: Props) => {
+  const [freeButtonIsLoading, setFreeButtonIsLoading] = useState(false);
+  const [premiumButtonIsLoading, setPremiumButtonIsLoading] = useState(false);
+  const [user] = useAuthState(auth);
+  const userIsPremium = usePremiumStatus(user as User);
+
+  // login modal
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const toggleModal = () => setModalIsOpen(!modalIsOpen);
+
+  const plans: Plan[] = [
+    {
+      name: "Free",
+      description:
+        "Best option for personal use that does not require much customization",
+      price: 0,
+      features: ["10 free mockups/month"],
+      actionLabel: (() => {
+        if (!user) return "Sign in and Get started";
+        if (!userIsPremium) return "Current plan";
+        return "Switch to this plan";
+      })(),
+      action: async () => {
+        if (!user) return toggleModal();
+        // already free user so do nothing
+        if (!userIsPremium) return;
+        // premium want to cancel subscription
+
+        setFreeButtonIsLoading(true);
+        await openCustomerPortal();
+        setFreeButtonIsLoading(false);
+      },
+    },
+    {
+      name: "Premium",
+      description: "Best if you need unlimited mockups and customization",
+      price: 0.99,
+      features: [
+        "Unlimited mockups",
+        "Customization such as background color and transparent background",
+      ],
+      actionLabel: (() => {
+        if (!user) return "Sign in and Get started";
+        if (!userIsPremium) return "Get started";
+        return "Current plan";
+      })(),
+      action: async () => {
+        if (!user) return toggleModal();
+        // free user wants to subscribe
+        if (!userIsPremium) {
+          setPremiumButtonIsLoading(true);
+          await createCheckoutSession(user.uid);
+          setPremiumButtonIsLoading(false);
+          return;
+        }
+        // already premium so do nothing
+        return;
+      },
+    },
+  ];
+
   return (
     <section className="bg-white ">
       <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
@@ -73,9 +122,9 @@ const Pricing = ({}: Props) => {
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        fill-rule="evenodd"
+                        fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd"
+                        clipRule="evenodd"
                       ></path>
                     </svg>
                     <span>{feature}</span>
@@ -83,11 +132,19 @@ const Pricing = ({}: Props) => {
                 ))}
               </ul>
 
-              <Button label="Get started" />
+              <Button
+                label={plan.actionLabel}
+                onClick={plan.action}
+                loading={
+                  (plan.name === "Premium" && premiumButtonIsLoading) ||
+                  (plan.name === "Free" && freeButtonIsLoading)
+                }
+              />
             </div>
           ))}
         </div>
       </div>
+      <LoginModal isOpen={modalIsOpen} toggleModal={toggleModal} />
     </section>
   );
 };

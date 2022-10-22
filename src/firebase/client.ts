@@ -69,18 +69,16 @@ export const logout = () => {
 export const openCustomerPortal = async () => {
   console.log("open portal");
   console.log("1");
-
-  console.log("2");
   const functionRef = httpsCallable(
     functions,
     "ext-firestore-stripe-payments-createPortalLink"
   );
-  console.log("3");
+  console.log("2");
   console.log("function ref", functionRef);
   const { data } = await functionRef({
     returnUrl: window.location.origin,
   });
-  console.log("4");
+  console.log("3");
 
   console.log("data in portal", data);
 

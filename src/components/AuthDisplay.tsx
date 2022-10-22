@@ -1,51 +1,40 @@
 import { User } from "firebase/auth";
 import { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { createCheckoutSession } from "../stripe/createCheckoutSession";
-import usePremiumStatus from "../hooks/usePremiumStatus";
 import { auth, logout } from "../firebase/client";
+import usePremiumStatus from "../hooks/usePremiumStatus";
+import { createCheckoutSession } from "../stripe/createCheckoutSession";
 import Button, { ButtonTypes } from "./Buttons/Button";
 import Dropdown from "./Dropdown";
-import GoogleLogin from "./GoogleLogin";
-import Modal from "./Modal";
+import LoginModal from "./LoginModal";
 import Tag from "./Tag";
 import PageHeading from "./typography/PageHeading";
+import SmallHeading from "./typography/SmallHeading";
 
 interface Props {}
 
 const AuthDisplay = ({}: Props) => {
   const [user, userLoading] = useAuthState(auth);
   const userIsPremium = usePremiumStatus(user as User);
+  const [premiumButtonIsLoading, setPremiumButtonIsLoading] = useState(false);
 
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
   const toggleModal = () => setModalIsOpen(!modalIsOpen);
 
+  const handleSubscribe = async () => {
+    if (!user) return;
+    setPremiumButtonIsLoading(true);
+    await createCheckoutSession(user.uid);
+    setPremiumButtonIsLoading(false);
+    return;
+  };
   // loading
   if (!user && userLoading) return <h1>Loading...</h1>;
 
   // no user
   if (!user && !userLoading)
-    return (
-      <div>
-        <Button
-          label="Sign in"
-          onClick={toggleModal}
-          type={ButtonTypes.TEXT}
-          fontColour="text-grey-0"
-        />
-        <Modal
-          contentLabel="Sign in"
-          isOpen={modalIsOpen}
-          onRequestClose={toggleModal}
-          heading={<PageHeading heading="Login to your account" />}
-          minWidth="40%"
-          zIndex={20}
-        >
-          <GoogleLogin />
-        </Modal>
-      </div>
-    );
+    return <LoginModal isOpen={modalIsOpen} toggleModal={toggleModal} />;
 
   return (
     <div>
@@ -54,8 +43,10 @@ const AuthDisplay = ({}: Props) => {
           {!userIsPremium ? (
             <Button
               type={ButtonTypes.ACTION}
+              fontSize="text-md"
               label="Upgrade to premium"
-              onClick={() => createCheckoutSession(user.uid)}
+              loading={premiumButtonIsLoading}
+              onClick={handleSubscribe}
             />
           ) : (
             <Tag content="🍪 Premium" extraClass="ml-auto" />
@@ -83,7 +74,10 @@ const AuthDisplay = ({}: Props) => {
               },
             ]}
           >
-            <PageHeading heading={`Hi, ${user.displayName?.split(" ")[0]}`} />
+            <SmallHeading
+              fontSize="text-md"
+              heading={`Hi, ${user.displayName?.split(" ")[0]}`}
+            />
           </Dropdown>
         </div>
       )}
