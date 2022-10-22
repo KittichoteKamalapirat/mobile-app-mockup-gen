@@ -9,6 +9,7 @@ import { RootState } from "../redux/store";
 import Button from "./Buttons/Button";
 import DropzoneField, { UploadedFile } from "./DropzoneField";
 import Toggle from "./Toggle";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {}
 
@@ -69,7 +70,7 @@ const CreateMockup = ({}: Props) => {
       link.download = name;
 
       link.href = url;
-      const mockup: Mockup = { id: "xxx", name, url };
+      const mockup: Mockup = { id: uuidv4(), name, url };
       dispatch(createMockup(mockup as any) as any); // TODO
 
       setDownloadLink(link);

@@ -7,6 +7,7 @@ import { RgbaStringColorPicker } from "react-colorful";
 import { BsArrowDownUp } from "react-icons/bs";
 import { GiStripedSun } from "react-icons/gi";
 import { HiOutlineDeviceMobile, HiOutlineLightBulb } from "react-icons/hi";
+import { v4 as uuidv4 } from "uuid";
 
 import { CgColorPicker } from "react-icons/cg";
 
@@ -57,6 +58,8 @@ import {
 import { auth } from "../src/firebase/client";
 import usePremiumStatus from "../src/hooks/usePremiumStatus";
 import Tag from "../src/components/Tag";
+import { createMockup, Mockup } from "../src/redux/slices/mockupReducer";
+import { useDispatch } from "react-redux";
 
 interface Props {}
 
@@ -123,6 +126,7 @@ export const state: ProxyState = proxy({
 
 const ThreeDimension = ({}: Props) => {
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
+  const dispatch = useDispatch();
 
   const snap = useSnapshot(state);
   const [user, userLoading] = useAuthState(auth);
@@ -265,6 +269,12 @@ const ThreeDimension = ({}: Props) => {
       const name = upload.name;
 
       const link = document.createElement("a");
+
+      // save the mockup to firebase too
+      const mockup: Mockup = { id: uuidv4(), name, url: cropppedUrl };
+      console.log("cropppedUrl", cropppedUrl);
+      console.log("url", url);
+      dispatch(createMockup(mockup) as any); // TODO
 
       link.download = name;
       link.href = cropppedUrl;

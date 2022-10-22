@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Container from "../src/components/containers/Container";
 import Layout from "../src/components/layouts/Layout";
 import { Loading } from "../src/components/Loading";
-import MockupItem from "../src/components/MockupItem";
+import MockupItem from "../src/components/MockupItem3d";
 import PageHeading from "../src/components/typography/PageHeading";
 import { auth, firestore } from "../src/firebase/client";
 import { Mockup, updateMockups } from "../src/redux/slices/mockupReducer";
