@@ -28,10 +28,6 @@
 .croppingArea {
   border: 1px dashed black;
   position: absolute;
-  /* top: 0px;
-  left: 0px;
-  width: 100px;
-  height: 100px; */
   z-index: 100;
   box-shadow: 0 0 2000px 2000px rgb(0 0 0 / 30%);
   touch-action: none;
@@ -42,10 +38,6 @@
   border: 2px dashed #c2c2c2;
   position: absolute;
   pointer-events: none;
-  /* top: 0px; */
-  /* left: 0px; */
-  /* width: 100px; */
-  /* height: 100px; */
   z-index: 100;
   touch-action: none;
 }

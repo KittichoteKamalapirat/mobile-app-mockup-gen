@@ -1,6 +1,6 @@
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { ReactNode, useCallback, useEffect, useRef } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSnapshot } from "valtio";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 import { state } from "../../../pages/design";
@@ -26,9 +26,11 @@ export type CoordinateAndDimensions = {
 } & Dimensions;
 
 const Crop = ({ children, onCrop }: Props) => {
-  // const [isCropping, setIsCropping] = useState(true);
   const snap = useSnapshot(state);
+
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const cropRef = useRef(null);
+
   const { height: windowH, width: windowW } = useWindowDimensions() || {};
 
   const [{ x, y, width, height }, api] = useSpring(() => ({
@@ -37,8 +39,6 @@ const Crop = ({ children, onCrop }: Props) => {
     width: snap.cropWidth,
     height: snap.cropHeight,
   }));
-
-  console.log("container ref", containerRef.current?.clientWidth);
 
   const bottomRightResizerRef = useRef<HTMLDivElement | null>(null);
 
@@ -92,11 +92,6 @@ const Crop = ({ children, onCrop }: Props) => {
     }
   );
 
-  // const onCancel = useCallback(() => {
-  //   // setIsCropping(false);
-  //   state.isCropping = false;
-  // }, []);
-
   const onDone = useCallback(() => {
     // setIsCropping(false);
     state.isCropping = false;
@@ -121,22 +116,23 @@ const Crop = ({ children, onCrop }: Props) => {
     state.cropHeight = height.get();
   }, [onCrop]);
 
-  // resize to fit different monitor size
-  useEffect(() => {
-    // TODO download popup triggers this too, so remove windowH from dependency for now
-    if (!windowW || !windowH) return;
+  // TODO resize to fit different monitor size
+  // TODO download popup triggers this too, so remove windowH from dependency for now
+  // useEffect(() => {
 
-    api.set({
-      x: 0.1 * windowW,
-      y: 0.05 * windowH,
-      width: 0.8 * windowW,
-      height: 0.8 * windowH,
-    });
-  }, [windowW]);
+  //   if (!windowW || !windowH) return;
+
+  //   api.set({
+  //     x: 0.1 * windowW,
+  //     y: 0.05 * windowH,
+  //     width: 0.8 * windowW,
+  //     height: 0.8 * windowH,
+  //   });
+  // }, [windowW]);
 
   return (
     <div className={styles.container} ref={containerRef}>
-      <div>
+      <div ref={cropRef}>
         {Boolean(snap.isCropping) ? (
           <animated.div
             className={styles.croppingArea}
@@ -157,17 +153,7 @@ const Crop = ({ children, onCrop }: Props) => {
         {children}
       </div>
       <div className={styles.overlayControls}>
-        {Boolean(snap.isCropping) && (
-          <>
-            {/* <Button
-              label="Cancel"
-              onClick={onCancel}
-              type={ButtonTypes.OUTLINED}
-              extraClass="mx-2"
-            /> */}
-            <Button label="Save" onClick={onDone} />
-          </>
-        )}
+        {Boolean(snap.isCropping) && <Button label="Save" onClick={onDone} />}
       </div>
     </div>
   );

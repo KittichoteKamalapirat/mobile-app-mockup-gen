@@ -60,6 +60,7 @@ import usePremiumStatus from "../src/hooks/usePremiumStatus";
 import Tag from "../src/components/Tag";
 import { createMockup, Mockup } from "../src/redux/slices/mockupReducer";
 import { useDispatch } from "react-redux";
+import useWindowDimensions from "../src/hooks/useWindowDimensions";
 
 interface Props {}
 
@@ -125,6 +126,8 @@ export const state: ProxyState = proxy({
 });
 
 const ThreeDimension = ({}: Props) => {
+  const { height: windowH, width: windowW } = useWindowDimensions() || {};
+
   const [fileUploads, setFileUploads] = useState<UploadedFile[]>([]);
   const dispatch = useDispatch();
 
@@ -150,6 +153,7 @@ const ThreeDimension = ({}: Props) => {
 
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const canvaRef = useRef<HTMLCanvasElement>(null);
+
   const rotateObjectDropdownRef = useRef<HTMLDivElement>(null);
 
   const upload: UploadedFile = useSelector((state: RootState) => state.upload);
@@ -221,21 +225,15 @@ const ThreeDimension = ({}: Props) => {
   // create img from canvas
   const handleDownload = () => {
     // no crop
-    // const canvas = canvaRef.current as HTMLCanvasElement;
-
-    // const url = canvas.toDataURL("image/png");
-    // const name = upload.name;
-
-    // const link = document.createElement("a");
-    // link.download = name;
-    // link.href = url;
-    // link.click();
 
     // crop
     // create an image from url (from canvas)
-    // draw a croppped iamge
+    // draw a croppped image
 
     const designCanvas = canvaRef.current as HTMLCanvasElement;
+    // designCanvas.width = 1200;
+    // designCanvas.height = 700;
+
     const url = designCanvas.toDataURL("image/png");
 
     const downloadCanvas = document.getElementById(
@@ -245,24 +243,43 @@ const ThreeDimension = ({}: Props) => {
     const uncroppedImg = new Image();
     uncroppedImg.src = url;
 
-    downloadCanvas.width = designCanvas.width; // set canva width the same as image
-    downloadCanvas.height = designCanvas.height;
+    // make width and height to match when draw, so it does not overflow (have transparent margin)
+    downloadCanvas.width = snap.cropWidth * 2; // set canva width the same as image
+    downloadCanvas.height = snap.cropHeight * 2;
 
     const ctx = downloadCanvas.getContext("2d") as CanvasRenderingContext2D;
 
     uncroppedImg.onload = function () {
+      // no crop
+      // ctx.drawImage(
+      //   uncroppedImg,
+      //   0,
+      //   0, // top left grab
+      //   uncroppedImg.width,
+      //   uncroppedImg.height, // bottom right grab
+      //   0,
+      //   0,
+      //   uncroppedImg.width,
+      //   uncroppedImg.height
+      // );
+
+      // with crop
+
       // for some reasons, canvas size is 2 times the pixel on pc
+      // NOTE: uncropped image starts from top left corner (overlap with menu)
       ctx.drawImage(
         uncroppedImg,
         snap.topLeftCropX * 2,
         snap.topLeftCropY * 2, // top left grab
-        (snap.topLeftCropX + snap.cropWidth) * 2,
-        (snap.topLeftCropY + snap.cropHeight) * 2, // bottom right grab
+        snap.cropWidth * 2,
+        snap.cropHeight * 2, // bottom right grab (plus from x and y)
         0,
-        0, // place ลงมาหน่อยเพราะขอบ
+        0,
         snap.cropWidth * 2,
         snap.cropHeight * 2
       );
+
+      // update width and height so it does not overflow (have transparent margin)
 
       const cropppedUrl = downloadCanvas.toDataURL("image/png");
 
@@ -272,8 +289,6 @@ const ThreeDimension = ({}: Props) => {
 
       // save the mockup to firebase too
       const mockup: Mockup = { id: uuidv4(), name, url: cropppedUrl };
-      console.log("cropppedUrl", cropppedUrl);
-      console.log("url", url);
       dispatch(createMockup(mockup) as any); // TODO
 
       link.download = name;
@@ -284,13 +299,13 @@ const ThreeDimension = ({}: Props) => {
 
   const onCrop = () => {};
   return (
-    <div className="h-screen relative ">
+    <div className="h-full relative ">
       <Crop onCrop={onCrop}>
         <Canvas
           ref={canvaRef}
+          // width and height of parent container
           style={{
             height: "100vh",
-            // width: "100vh",
             zIndex: 1,
           }}
           gl={{ preserveDrawingBuffer: true }}
