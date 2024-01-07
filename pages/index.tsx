@@ -28,10 +28,9 @@ import { RootState } from "../src/redux/store";
 import { debounce } from "../src/utils/debounce";
 import { inactiveGrey, primaryColor } from "../theme";
 
-import { BiArrowBack, BiCrop } from "react-icons/bi";
+import { BiCrop } from "react-icons/bi";
 
 import { useDispatch } from "react-redux";
-import LinkButton from "../src/components/Buttons/LinkButton";
 import Crop from "../src/components/Crop";
 import DropdownModal from "../src/components/DropdownModal";
 import Tag from "../src/components/Tag";
