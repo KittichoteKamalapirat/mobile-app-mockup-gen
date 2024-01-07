@@ -3,7 +3,7 @@ import { useDrag } from "@use-gesture/react";
 import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSnapshot } from "valtio";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
-import { state } from "../../../pages/design";
+import { state } from "../../../pages";
 import Button from "../Buttons/Button";
 import styles from "./index.module.css";
 
